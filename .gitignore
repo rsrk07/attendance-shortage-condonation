@@ -1,0 +1,22 @@
+# Secrets — never commit real credentials
+.env
+*.env.local
+
+# Java / Maven
+backend-springboot/target/
+*.class
+*.log
+backend-springboot/data/*.db
+*.mv.db
+*.trace.db
+
+# Node / Vite
+frontend-react/node_modules/
+frontend-react/dist/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
