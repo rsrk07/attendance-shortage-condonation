@@ -4,7 +4,7 @@ All models target **Camunda 8.10** (SaaS) and are executable.
 
 | File | Process / decision ID | Purpose |
 |---|---|---|
-| `condonation-main.bpmn` | `attendance-condonation` | Main end-to-end condonation workflow |
+| `condonation-main.bpmn` | `attendance-shortage-condonation` | Main end-to-end condonation workflow |
 | `approval-child.bpmn` | `condonation-approval` | Child process (Call Activity) — one approver's review; called as a **sequential multi-instance** over the approvers decided by the DMN |
 | `notification-child.bpmn` | `send-notification` | Reusable child process (Call Activity) — sends an email through the **Email connector**; used for student notifications and approver reminders |
 | `condonation-eligibility.dmn` | `condonation-eligibility` | Eligibility slab, fee and required approvers *(Part 3)* |
@@ -57,6 +57,10 @@ then: Notify student (rejected) → Record outcome → Request rejected
 | `verify-payment` | `PAYMENT_INVALID` |
 | `update-sis-record` | `SIS_UPDATE_FAILED` |
 | `record-outcome` | — |
+
+## Validation
+
+All three models were imported into Camunda Web Modeler (Camunda Hub, project folder `full-stack-v2`) and checked against **Camunda 8.10**: no errors. The remaining notes are informational (linked DMN/forms/child processes are resolved at deploy time). The email connector uses the `{{secrets.NAME}}` connector-secret format, which 8.10 marks as "legacy" but still fully supports.
 
 ## Connector secrets (Camunda Console → Cluster → Connector secrets)
 

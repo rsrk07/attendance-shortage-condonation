@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_condonation_main" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
-  <bpmn:process id="attendance-condonation" name="Attendance Shortage Condonation" isExecutable="true">
+  <bpmn:process id="attendance-shortage-condonation" name="Attendance Shortage Condonation" isExecutable="true">
     <bpmn:startEvent id="Start_Submitted" name="Condonation request submitted">
       <bpmn:outgoing>Flow_Main_01</bpmn:outgoing>
     </bpmn:startEvent>
@@ -363,8 +363,8 @@
   <bpmn:error id="Error_DocInvalid" name="Document invalid" errorCode="DOC_INVALID" />
   <bpmn:error id="Error_PaymentInvalid" name="Payment invalid" errorCode="PAYMENT_INVALID" />
   <bpmn:error id="Error_SisFailed" name="SIS update failed" errorCode="SIS_UPDATE_FAILED" />
-  <bpmndi:BPMNDiagram id="attendance-condonation_diagram">
-    <bpmndi:BPMNPlane id="attendance-condonation_plane" bpmnElement="attendance-condonation">
+  <bpmndi:BPMNDiagram id="attendance-shortage-condonation_diagram">
+    <bpmndi:BPMNPlane id="attendance-shortage-condonation_plane" bpmnElement="attendance-shortage-condonation">
       <bpmndi:BPMNShape id="Start_Submitted_di" bpmnElement="Start_Submitted">
         <dc:Bounds x="150" y="282" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -389,7 +389,7 @@
       <bpmndi:BPMNShape id="Gateway_Condonable_di" bpmnElement="Gateway_Condonable" isMarkerVisible="true">
         <dc:Bounds x="690" y="275" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="685" y="332" width="60" height="14" />
+          <dc:Bounds x="675" y="332" width="80" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="SubProcess_Documents_di" bpmnElement="SubProcess_Documents" isExpanded="true">
@@ -414,9 +414,9 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_DocsTimeout_di" bpmnElement="Boundary_DocsTimeout">
-        <dc:Bounds x="992" y="182" width="36" height="36" />
+        <dc:Bounds x="862" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1030" y="168" width="80" height="14" />
+          <dc:Bounds x="900" y="168" width="80" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_DocInvalid_di" bpmnElement="Boundary_DocInvalid">
@@ -513,9 +513,9 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_DocsNotSubmitted_di" bpmnElement="Event_DocsNotSubmitted">
-        <dc:Bounds x="992" y="102" width="36" height="36" />
+        <dc:Bounds x="862" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1032" y="106" width="95" height="27" />
+          <dc:Bounds x="902" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_DocsInvalid_di" bpmnElement="Event_DocsInvalid">
@@ -677,8 +677,8 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToDocsNotSubmitted_di" bpmnElement="Flow_ToDocsNotSubmitted">
-        <di:waypoint x="1010" y="182" />
-        <di:waypoint x="1010" y="138" />
+        <di:waypoint x="880" y="182" />
+        <di:waypoint x="880" y="138" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToDocsInvalid_di" bpmnElement="Flow_ToDocsInvalid">
         <di:waypoint x="1150" y="182" />
@@ -710,8 +710,8 @@
         <di:waypoint x="2000" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_3_di" bpmnElement="Flow_Reject_3">
-        <di:waypoint x="1010" y="102" />
-        <di:waypoint x="1010" y="50" />
+        <di:waypoint x="880" y="102" />
+        <di:waypoint x="880" y="50" />
         <di:waypoint x="2000" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_4_di" bpmnElement="Flow_Reject_4">
