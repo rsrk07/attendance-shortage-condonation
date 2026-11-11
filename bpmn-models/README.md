@@ -7,8 +7,41 @@ All models target **Camunda 8.10** (SaaS) and are executable.
 | `condonation-main.bpmn` | `attendance-shortage-condonation` | Main end-to-end condonation workflow |
 | `approval-child.bpmn` | `condonation-approval` | Reusable child process (Call Activity) — one approver's review with a reminder timer; called three times: FA → AA → HOD |
 | `notification-child.bpmn` | `send-notification` | Reusable child process (Call Activity) — sends an email through the **Email connector**; used for student notifications, approver reminders and approver updates |
-| `condonation-eligibility.dmn` | `condonation-eligibility` | Eligibility slab and condonation fee *(Part 3)* |
-| `forms/*.form` | — | Camunda Forms linked to the user tasks *(Part 3)* |
+| `condonation-eligibility.dmn` | `condonation-eligibility` | DMN decision table: eligibility slab and condonation fee |
+| `forms/review-request.form` | `review-request` | FA / AA / HOD review (approval child process) |
+| `forms/pay-fee.form` | `pay-fee` | Student pays the condonation fee |
+| `forms/admin-fix.form` | `admin-fix` | Admin fixes a failed SIS update |
+
+## DMN: `condonation-eligibility` (hit policy FIRST)
+
+Inputs: `attendance.percentage` (number), `reasonCategory` (string). Result variable in the BPMN: `eligibility = {slab, condonable, fee, remark}`.
+
+| # | Attendance % | Reason category | Slab | Condonable | Fee (Rs.) |
+|---|---|---|---|---|---|
+| 1 | `>= 75` | any | `NOT_REQUIRED` | false | 0 |
+| 2 | `[70..75)` | any | `SLAB_A` | true | 500 |
+| 3 | `[65..70)` | `MEDICAL`, `ON_DUTY`, `FAMILY_EMERGENCY` | `SLAB_B` | true | 1000 |
+| 4 | `[60..65)` | `MEDICAL` | `SLAB_C` | true | 2000 |
+| 5 | any (incl. missing) | any | `NOT_ELIGIBLE` | false | 0 |
+
+Sample data coverage (`backend-springboot/src/main/resources/data/attendance/`):
+
+| Student | 21ECC301T | 21ECC302J | 21ECC303T |
+|---|---|---|---|
+| RA2311004010101 | 72.22% → A | 65.28% → B (not with PERSONAL) | 91.67% → not required |
+| RA2311004010102 | 62.50% → C (MEDICAL only) | 52.78% → not eligible | 77.78% → not required |
+| RA2311004010103 | 70.83% → A | 69.44% → B | 68.06% → B |
+| RA2311004010104 | 97.22% → not required | 94.44% → not required | 41.67% → not eligible |
+
+## Forms
+
+| Form | Shows | Submits |
+|---|---|---|
+| `review-request` | student, course, attendance, slab, fee, reason, document table, automatic verification table, earlier approvers' remarks | `decision` (`APPROVED` / `REJECTED`), `remarks` |
+| `pay-fee` | fee amount and slab | `paymentMode`, `paymentReference` (8–20 letters/digits), `amountPaid`, `paymentConfirmed` |
+| `admin-fix` | SIS error (`sisError`) | `adminNote`, `sisRecordFixed` |
+
+The custom React Tasklist (Part 6) renders its own screens for these tasks; the Camunda Forms make the same tasks usable in Camunda's built-in Tasklist too.
 
 ## Main process at a glance
 

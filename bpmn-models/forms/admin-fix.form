@@ -1,0 +1,33 @@
+{
+  "id": "admin-fix",
+  "type": "default",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "schemaVersion": 18,
+  "components": [
+    {
+      "type": "text",
+      "text": "# SIS update failed\nThe Student Information System could not be updated for request **{{requestId}}** ({{studentId}}, {{courseCode}}).\n\n**Error:** {{sisError}}",
+      "id": "Text_6"
+    },
+    {
+      "type": "textarea",
+      "key": "adminNote",
+      "label": "What did you fix?",
+      "id": "Field_7",
+      "validate": {
+        "required": true,
+        "maxLength": 500
+      }
+    },
+    {
+      "type": "checkbox",
+      "key": "sisRecordFixed",
+      "label": "The SIS record is fixed - retry the update",
+      "id": "Field_8",
+      "validate": {
+        "required": true
+      }
+    }
+  ]
+}

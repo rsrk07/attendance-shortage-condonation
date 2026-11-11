@@ -15,7 +15,7 @@
     </bpmn:userTask>
     <bpmn:scriptTask id="Task_RecordDecision" name="Record review decision">
       <bpmn:extensionElements>
-        <zeebe:script expression="={role: approverRole, approved: approved = true, remarks: if remarks = null then &#34;&#34; else remarks, reviewedBy: if reviewedBy = null then approverRole else reviewedBy}" resultVariable="approval" />
+        <zeebe:script expression="={role: approverRole, approved: approved = true or decision = &#34;APPROVED&#34;, remarks: if remarks = null then &#34;&#34; else remarks, reviewedBy: if reviewedBy = null then approverRole else reviewedBy}" resultVariable="approval" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Approval_2</bpmn:incoming>
       <bpmn:outgoing>Flow_Approval_3</bpmn:outgoing>

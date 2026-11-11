@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_condonation_eligibility" name="Condonation Eligibility" namespace="http://camunda.org/schema/1.0/dmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <decision id="condonation-eligibility" name="Condonation eligibility">
+    <decisionTable id="DecisionTable_eligibility" hitPolicy="FIRST">
+      <input id="Input_percentage" label="Attendance %">
+        <inputExpression id="InputExpression_percentage" typeRef="number">
+          <text>attendance.percentage</text>
+        </inputExpression>
+      </input>
+      <input id="Input_reason" label="Reason category">
+        <inputExpression id="InputExpression_reason" typeRef="string">
+          <text>reasonCategory</text>
+        </inputExpression>
+        <inputValues id="UnaryTests_reason_values">
+          <text>"MEDICAL","ON_DUTY","FAMILY_EMERGENCY","PERSONAL"</text>
+        </inputValues>
+      </input>
+      <output id="Output_slab" label="Slab" name="slab" typeRef="string">
+        <outputValues id="UnaryTests_slab_values">
+          <text>"NOT_REQUIRED","SLAB_A","SLAB_B","SLAB_C","NOT_ELIGIBLE"</text>
+        </outputValues>
+      </output>
+      <output id="Output_condonable" label="Condonable" name="condonable" typeRef="boolean" />
+      <output id="Output_fee" label="Fee (Rs.)" name="fee" typeRef="number" />
+      <output id="Output_remark" label="Remark" name="remark" typeRef="string" />
+      <rule id="Rule_not_required">
+        <description>75% or more: no condonation needed</description>
+        <inputEntry id="UnaryTests_r1_pct">
+          <text>&gt;= 75</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_r1_reason">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_r1_slab">
+          <text>"NOT_REQUIRED"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r1_condonable">
+          <text>false</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r1_fee">
+          <text>0</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r1_remark">
+          <text>"Attendance is 75% or more, so condonation is not required"</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_slab_a">
+        <description>Minor shortfall, any reason</description>
+        <inputEntry id="UnaryTests_r2_pct">
+          <text>[70..75)</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_r2_reason">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_r2_slab">
+          <text>"SLAB_A"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r2_condonable">
+          <text>true</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r2_fee">
+          <text>500</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r2_remark">
+          <text>"Minor shortfall (70-75%): condonable"</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_slab_b">
+        <description>Moderate shortfall needs a documented reason</description>
+        <inputEntry id="UnaryTests_r3_pct">
+          <text>[65..70)</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_r3_reason">
+          <text>"MEDICAL","ON_DUTY","FAMILY_EMERGENCY"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_r3_slab">
+          <text>"SLAB_B"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r3_condonable">
+          <text>true</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r3_fee">
+          <text>1000</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r3_remark">
+          <text>"Moderate shortfall (65-70%) with a documented reason: condonable"</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_slab_c">
+        <description>Severe shortfall, medical grounds only</description>
+        <inputEntry id="UnaryTests_r4_pct">
+          <text>[60..65)</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_r4_reason">
+          <text>"MEDICAL"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_r4_slab">
+          <text>"SLAB_C"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r4_condonable">
+          <text>true</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r4_fee">
+          <text>2000</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r4_remark">
+          <text>"Severe shortfall (60-65%) on medical grounds: condonable"</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_not_eligible">
+        <description>Everything else (also catches a missing attendance value)</description>
+        <inputEntry id="UnaryTests_r5_pct">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_r5_reason">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_r5_slab">
+          <text>"NOT_ELIGIBLE"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r5_condonable">
+          <text>false</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r5_fee">
+          <text>0</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_r5_remark">
+          <text>"Attendance is below the condonable limit for this reason"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_condonation_eligibility">
+      <dmndi:DMNShape id="DMNShape_condonation_eligibility" dmnElementRef="condonation-eligibility">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

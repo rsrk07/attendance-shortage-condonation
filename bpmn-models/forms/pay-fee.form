@@ -1,0 +1,68 @@
+{
+  "id": "pay-fee",
+  "type": "default",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "schemaVersion": 18,
+  "components": [
+    {
+      "type": "text",
+      "text": "# Pay condonation fee\nRequest **{{requestId}}** | {{courseCode}} - {{attendance.courseName}}\n\nYour request was approved by the Faculty Advisor, Academic Advisor and Head of Department. Pay **Rs. {{eligibility.fee}}** (slab {{eligibility.slab}}) to complete the condonation.",
+      "id": "Text_5"
+    },
+    {
+      "type": "select",
+      "key": "paymentMode",
+      "label": "Payment mode",
+      "id": "Field_3",
+      "values": [
+        {
+          "label": "UPI",
+          "value": "UPI"
+        },
+        {
+          "label": "Debit / credit card",
+          "value": "CARD"
+        },
+        {
+          "label": "Net banking",
+          "value": "NET_BANKING"
+        }
+      ],
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "type": "textfield",
+      "key": "paymentReference",
+      "label": "Transaction reference",
+      "id": "Field_4",
+      "description": "8 to 20 letters or digits, as shown on your payment receipt",
+      "validate": {
+        "required": true,
+        "pattern": "^[A-Za-z0-9]{8,20}$",
+        "patternErrorMessage": "Use 8 to 20 letters or digits"
+      }
+    },
+    {
+      "type": "number",
+      "key": "amountPaid",
+      "label": "Amount paid (Rs.)",
+      "id": "Field_5",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "type": "checkbox",
+      "key": "paymentConfirmed",
+      "label": "I confirm the payment details above are correct",
+      "id": "Field_6",
+      "validate": {
+        "required": true
+      }
+    }
+  ]
+}

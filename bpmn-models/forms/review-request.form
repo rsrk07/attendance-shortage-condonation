@@ -1,0 +1,109 @@
+{
+  "id": "review-request",
+  "type": "default",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "schemaVersion": 18,
+  "components": [
+    {
+      "type": "text",
+      "text": "# Condonation review ({{approverRole}})\nRequest **{{requestId}}** from **{{studentName}}** ({{studentId}})",
+      "id": "Text_1"
+    },
+    {
+      "type": "group",
+      "label": "Request details",
+      "showOutline": true,
+      "id": "Group_1",
+      "components": [
+        {
+          "type": "text",
+          "text": "**Course:** {{courseCode}} - {{attendance.courseName}}\n\n**Attendance:** {{attendance.attended}} of {{attendance.conducted}} classes = **{{attendance.percentage}}%** (short by {{attendance.shortfall}}%)\n\n**Eligibility slab:** {{eligibility.slab}} | **Condonation fee:** Rs. {{eligibility.fee}}\n\n**Reason ({{reasonCategory}}):** {{reason}}",
+          "id": "Text_2"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "Supporting documents",
+      "dataSource": "=documents",
+      "id": "Table_1",
+      "columns": [
+        {
+          "label": "Document type",
+          "key": "type"
+        },
+        {
+          "label": "File name",
+          "key": "fileName"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "Automatic verification",
+      "dataSource": "=documentChecks",
+      "id": "Table_2",
+      "columns": [
+        {
+          "label": "Document type",
+          "key": "type"
+        },
+        {
+          "label": "Valid",
+          "key": "valid"
+        },
+        {
+          "label": "Note",
+          "key": "note"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "text": "**Faculty Advisor:** approved. {{faApproval.remarks}}",
+      "id": "Text_3",
+      "conditional": {
+        "hide": "=faApproval = null"
+      }
+    },
+    {
+      "type": "text",
+      "text": "**Academic Advisor:** approved. {{aaApproval.remarks}}",
+      "id": "Text_4",
+      "conditional": {
+        "hide": "=aaApproval = null"
+      }
+    },
+    {
+      "type": "radio",
+      "key": "decision",
+      "label": "Your decision",
+      "id": "Field_1",
+      "values": [
+        {
+          "label": "Approve",
+          "value": "APPROVED"
+        },
+        {
+          "label": "Reject",
+          "value": "REJECTED"
+        }
+      ],
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "key": "remarks",
+      "label": "Remarks",
+      "description": "Required when you reject - the student sees this text",
+      "id": "Field_2",
+      "validate": {
+        "required": false,
+        "maxLength": 500
+      }
+    }
+  ]
+}
