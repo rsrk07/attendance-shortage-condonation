@@ -1,0 +1,26 @@
+{
+  "studentId": "RA2311004010101",
+  "name": "Arjun Kumar",
+  "department": "Electronics and Communication Engineering",
+  "semester": 5,
+  "courses": [
+    {
+      "code": "21ECC301T",
+      "name": "Digital Signal Processing",
+      "attended": 52,
+      "conducted": 72
+    },
+    {
+      "code": "21ECC302J",
+      "name": "VLSI Design",
+      "attended": 47,
+      "conducted": 72
+    },
+    {
+      "code": "21ECC303T",
+      "name": "Computer Networks",
+      "attended": 66,
+      "conducted": 72
+    }
+  ]
+}
