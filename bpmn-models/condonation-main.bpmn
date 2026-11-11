@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_condonation_main" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
   <bpmn:process id="attendance-shortage-condonation" name="Attendance Shortage Condonation" isExecutable="true">
-    <bpmn:startEvent id="Start_Submitted" name="Condonation request submitted">
+    <bpmn:startEvent id="Start_Submitted" name="Condonation request submitted (with documents)">
       <bpmn:outgoing>Flow_Main_01</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:serviceTask id="Task_FetchAttendance" name="Fetch attendance record" zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2" zeebe:modelerTemplateVersion="18" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjAzMzUgOC45OTk5N0MxNy4wMzM1IDEzLjQ0NzUgMTMuNDI4MSAxNy4wNTI5IDguOTgwNjUgMTcuMDUyOUM0LjUzMzE2IDE3LjA1MjkgMC45Mjc3NjUgMTMuNDQ3NSAwLjkyNzc2NSA4Ljk5OTk3QzAuOTI3NzY1IDQuNTUyNDggNC41MzMxNiAwLjk0NzA4MyA4Ljk4MDY1IDAuOTQ3MDgzQzEzLjQyODEgMC45NDcwODMgMTcuMDMzNSA0LjU1MjQ4IDE3LjAzMzUgOC45OTk5N1oiIGZpbGw9IiM1MDU1NjIiLz4KPHBhdGggZD0iTTQuOTMxMjYgMTQuMTU3MUw2Ljc4MTA2IDMuNzE0NzFIMTAuMTM3NUMxMS4xOTE3IDMuNzE0NzEgMTEuOTgyNCAzLjk4MzIzIDEyLjUwOTUgNC41MjAyN0MxMy4wNDY1IDUuMDQ3MzYgMTMuMzE1IDUuNzMzNTggMTMuMzE1IDYuNTc4OTJDMTMuMzE1IDcuNDQ0MTQgMTMuMDcxNCA4LjE1NTIyIDEyLjU4NDEgOC43MTIxNUMxMi4xMDY3IDkuMjU5MTMgMTEuNDU1MyA5LjYzNzA1IDEwLjYyOTggOS44NDU5TDEyLjA2MTkgMTQuMTU3MUgxMC4zMzE1TDkuMDMzNjQgMTAuMDI0OUg3LjI0MzUxTDYuNTEyNTQgMTQuMTU3MUg0LjkzMTI2Wk03LjQ5NzExIDguNTkyODFIOS4yNDI0OEM5Ljk5ODMyIDguNTkyODEgMTAuNTkwMSA4LjQyMzc0IDExLjAxNzcgOC4wODU2MUMxMS40NTUzIDcuNzM3NTMgMTEuNjc0MSA3LjI2NTEzIDExLjY3NDEgNi42Njg0MkMxMS42NzQxIDYuMTkxMDYgMTEuNTI0OSA1LjgxODExIDExLjIyNjUgNS41NDk1OUMxMC45MjgyIDUuMjcxMTMgMTAuNDU1OCA1LjEzMTkgOS44MDkzNiA1LjEzMTlIOC4xMDg3NEw3LjQ5NzExIDguNTkyODFaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K">
@@ -50,73 +50,92 @@
       <bpmn:outgoing>Flow_Condonable</bpmn:outgoing>
       <bpmn:outgoing>Flow_NotCondonable</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:subProcess id="SubProcess_Documents" name="Collect &amp; verify documents">
+    <bpmn:subProcess id="SubProcess_Documents" name="Verify submitted documents">
       <bpmn:incoming>Flow_Condonable</bpmn:incoming>
       <bpmn:outgoing>Flow_Main_05</bpmn:outgoing>
-      <bpmn:startEvent id="Start_Docs" name="Documents requested">
+      <bpmn:startEvent id="Start_Docs" name="Documents received">
         <bpmn:outgoing>Flow_Docs_1</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:userTask id="UserTask_UploadDocuments" name="Upload supporting documents">
-        <bpmn:extensionElements>
-        <zeebe:userTask />
-        <zeebe:formDefinition formId="upload-documents" />
-        <zeebe:assignmentDefinition assignee="=studentId" candidateGroups="students" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_Docs_1</bpmn:incoming>
-        <bpmn:outgoing>Flow_Docs_2</bpmn:outgoing>
-      </bpmn:userTask>
       <bpmn:serviceTask id="Task_ValidateDocument" name="Validate document">
         <bpmn:extensionElements>
         <zeebe:taskDefinition type="validate-document" retries="3" />
         </bpmn:extensionElements>
-        <bpmn:incoming>Flow_Docs_2</bpmn:incoming>
-        <bpmn:outgoing>Flow_Docs_3</bpmn:outgoing>
+        <bpmn:incoming>Flow_Docs_1</bpmn:incoming>
+        <bpmn:outgoing>Flow_Docs_2</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics>
         <bpmn:extensionElements>
           <zeebe:loopCharacteristics inputCollection="=documents" inputElement="document" outputCollection="documentChecks" outputElement="=documentCheck" />
         </bpmn:extensionElements>
       </bpmn:multiInstanceLoopCharacteristics>
       </bpmn:serviceTask>
+      <bpmn:scriptTask id="Task_SummariseDocuments" name="Summarise document checks">
+        <bpmn:extensionElements>
+        <zeebe:script expression="={total: count(documentChecks), valid: count(documentChecks[valid = true]), allValid: every c in documentChecks satisfies c.valid = true}" resultVariable="documentSummary" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_Docs_2</bpmn:incoming>
+        <bpmn:outgoing>Flow_Docs_3</bpmn:outgoing>
+      </bpmn:scriptTask>
       <bpmn:endEvent id="End_DocsVerified" name="Documents verified">
         <bpmn:incoming>Flow_Docs_3</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:sequenceFlow id="Flow_Docs_1" sourceRef="Start_Docs" targetRef="UserTask_UploadDocuments" />
-      <bpmn:sequenceFlow id="Flow_Docs_2" sourceRef="UserTask_UploadDocuments" targetRef="Task_ValidateDocument" />
-      <bpmn:sequenceFlow id="Flow_Docs_3" sourceRef="Task_ValidateDocument" targetRef="End_DocsVerified" />
+      <bpmn:sequenceFlow id="Flow_Docs_1" sourceRef="Start_Docs" targetRef="Task_ValidateDocument" />
+      <bpmn:sequenceFlow id="Flow_Docs_2" sourceRef="Task_ValidateDocument" targetRef="Task_SummariseDocuments" />
+      <bpmn:sequenceFlow id="Flow_Docs_3" sourceRef="Task_SummariseDocuments" targetRef="End_DocsVerified" />
     </bpmn:subProcess>
-    <bpmn:boundaryEvent id="Boundary_DocsTimeout" name="Deadline passed" attachedToRef="SubProcess_Documents">
-      <bpmn:outgoing>Flow_ToDocsNotSubmitted</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerDef_Docs">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">=documentDeadline</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:boundaryEvent>
     <bpmn:boundaryEvent id="Boundary_DocInvalid" name="Invalid document" attachedToRef="SubProcess_Documents">
       <bpmn:outgoing>Flow_ToDocsInvalid</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorDef_DocInvalid" errorRef="Error_DocInvalid" />
     </bpmn:boundaryEvent>
-    <bpmn:callActivity id="CallActivity_Approval" name="Approval by required approvers">
+    <bpmn:callActivity id="CallActivity_FA" name="FA approval">
       <bpmn:extensionElements>
         <zeebe:calledElement processId="condonation-approval" propagateAllChildVariables="false" />
         <zeebe:ioMapping>
-          <zeebe:output source="=approval" target="approval" />
+          <zeebe:input source="=&#34;FA&#34;" target="approverRole" />
+          <zeebe:output source="=approval" target="faApproval" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Main_05</bpmn:incoming>
-      <bpmn:outgoing>Flow_Main_06</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
-        <bpmn:extensionElements>
-          <zeebe:loopCharacteristics inputCollection="=eligibility.approvers" inputElement="approverRole" outputCollection="approvals" outputElement="=approval" />
-        </bpmn:extensionElements>
-        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">=approval.approved = false</bpmn:completionCondition>
-      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:outgoing>Flow_To_Gateway_FA</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:exclusiveGateway id="Gateway_AllApproved" name="All approved?" default="Flow_ApprovalRejected">
-      <bpmn:incoming>Flow_Main_06</bpmn:incoming>
-      <bpmn:outgoing>Flow_AllApproved</bpmn:outgoing>
-      <bpmn:outgoing>Flow_ApprovalRejected</bpmn:outgoing>
+    <bpmn:exclusiveGateway id="Gateway_FA" name="FA approved?" default="Flow_FA_Rejected">
+      <bpmn:incoming>Flow_To_Gateway_FA</bpmn:incoming>
+      <bpmn:outgoing>Flow_FA_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_FA_Rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_AA" name="AA approval">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="condonation-approval" propagateAllChildVariables="false" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=&#34;AA&#34;" target="approverRole" />
+          <zeebe:output source="=approval" target="aaApproval" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_FA_Approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Gateway_AA</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_AA" name="AA approved?" default="Flow_AA_Rejected">
+      <bpmn:incoming>Flow_To_Gateway_AA</bpmn:incoming>
+      <bpmn:outgoing>Flow_AA_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AA_Rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_HOD" name="HOD approval">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="condonation-approval" propagateAllChildVariables="false" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=&#34;HOD&#34;" target="approverRole" />
+          <zeebe:output source="=approval" target="hodApproval" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_AA_Approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Gateway_HOD</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_HOD" name="HOD approved?" default="Flow_HOD_Rejected">
+      <bpmn:incoming>Flow_To_Gateway_HOD</bpmn:incoming>
+      <bpmn:outgoing>Flow_HOD_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_HOD_Rejected</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:subProcess id="SubProcess_Fee" name="Fee payment">
-      <bpmn:incoming>Flow_AllApproved</bpmn:incoming>
+      <bpmn:incoming>Flow_HOD_Approved</bpmn:incoming>
       <bpmn:outgoing>Flow_Main_07</bpmn:outgoing>
       <bpmn:startEvent id="Start_Fee" name="Fee requested">
         <bpmn:outgoing>Flow_Fee_1</bpmn:outgoing>
@@ -183,6 +202,7 @@
       <bpmn:incoming>Flow_Main_09</bpmn:incoming>
       <bpmn:outgoing>Flow_Main_10</bpmn:outgoing>
       <bpmn:outgoing>Flow_Main_11</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Main_12</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:callActivity id="CallActivity_NotifyApproved" name="Notify student (approved)">
       <bpmn:extensionElements>
@@ -190,11 +210,28 @@
         <zeebe:ioMapping>
           <zeebe:input source="=studentEmail" target="emailTo" />
           <zeebe:input source="=&#34;Attendance condonation approved - &#34; + courseCode" target="emailSubject" />
-          <zeebe:input source="=&#34;Dear &#34; + studentName + &#34;,\n\nYour attendance condonation request for &#34; + courseCode + &#34; (&#34; + attendance.courseName + &#34;) has been approved.\n\nAttendance: &#34; + string(attendance.percentage) + &#34;%\nSlab: &#34; + eligibility.slab + &#34;\nFee paid: Rs. &#34; + string(eligibility.fee) + &#34;\n\nYour record has been updated in the Student Information System.\n\nRegards,\nAcademic Office&#34;" target="emailBody" />
+          <zeebe:input source="=&#34;Dear &#34; + studentName + &#34;,\n\nYour attendance condonation request for &#34; + courseCode + &#34; (&#34; + attendance.courseName + &#34;) has been approved by your Faculty Advisor, Academic Advisor and Head of Department.\n\nAttendance: &#34; + string(attendance.percentage) + &#34;%\nSlab: &#34; + eligibility.slab + &#34;\nFee paid: Rs. &#34; + string(eligibility.fee) + &#34;\n\nYour record has been updated in the Student Information System.\n\nRegards,\nAcademic Office&#34;" target="emailBody" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Main_10</bpmn:incoming>
-      <bpmn:outgoing>Flow_Main_12</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Main_13</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="CallActivity_InformApprovers" name="Inform approvers (FA, AA, HOD)">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="send-notification" propagateAllChildVariables="false" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=get value(approverEmails, approverRole)" target="emailTo" />
+          <zeebe:input source="=&#34;Condonation completed: &#34; + studentId + &#34; - &#34; + courseCode" target="emailSubject" />
+          <zeebe:input source="=&#34;Dear &#34; + approverRole + &#34;,\n\nThe attendance condonation for &#34; + studentName + &#34; (&#34; + studentId + &#34;) in &#34; + courseCode + &#34; is complete. The fee of Rs. &#34; + string(eligibility.fee) + &#34; has been paid and the SIS record updated.\n\nRegards,\nCondonation Workflow&#34;" target="emailBody" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Main_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_Main_14</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:extensionElements>
+          <zeebe:loopCharacteristics inputCollection="=[&#34;FA&#34;, &#34;AA&#34;, &#34;HOD&#34;]" inputElement="approverRole" />
+        </bpmn:extensionElements>
+      </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:callActivity>
     <bpmn:serviceTask id="Task_RecordApproved" name="Record outcome (approved)">
       <bpmn:extensionElements>
@@ -203,16 +240,17 @@
           <zeebe:input source="=&#34;APPROVED&#34;" target="outcome" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_Main_11</bpmn:incoming>
-      <bpmn:outgoing>Flow_Main_13</bpmn:outgoing>
+      <bpmn:incoming>Flow_Main_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_Main_15</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:parallelGateway id="Gateway_JoinApproved">
-      <bpmn:incoming>Flow_Main_12</bpmn:incoming>
       <bpmn:incoming>Flow_Main_13</bpmn:incoming>
-      <bpmn:outgoing>Flow_Main_14</bpmn:outgoing>
+      <bpmn:incoming>Flow_Main_14</bpmn:incoming>
+      <bpmn:incoming>Flow_Main_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_Main_16</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:endEvent id="End_Condoned" name="Attendance condoned">
-      <bpmn:incoming>Flow_Main_14</bpmn:incoming>
+      <bpmn:incoming>Flow_Main_16</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:intermediateThrowEvent id="Event_StudentNotFound" name="Student record not found">
       <bpmn:extensionElements>
@@ -234,16 +272,6 @@
       <bpmn:incoming>Flow_NotCondonable</bpmn:incoming>
       <bpmn:outgoing>Flow_Reject_2</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
-    <bpmn:intermediateThrowEvent id="Event_DocsNotSubmitted" name="Documents not submitted">
-      <bpmn:extensionElements>
-        <zeebe:ioMapping>
-          <zeebe:output source="=&#34;Supporting documents were not submitted before the deadline.&#34;" target="rejectionReason" />
-          <zeebe:output source="=&#34;DOCUMENTS&#34;" target="rejectionStage" />
-        </zeebe:ioMapping>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_ToDocsNotSubmitted</bpmn:incoming>
-      <bpmn:outgoing>Flow_Reject_3</bpmn:outgoing>
-    </bpmn:intermediateThrowEvent>
     <bpmn:intermediateThrowEvent id="Event_DocsInvalid" name="Documents rejected">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
@@ -252,17 +280,37 @@
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_ToDocsInvalid</bpmn:incoming>
-      <bpmn:outgoing>Flow_Reject_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Reject_3</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
-    <bpmn:intermediateThrowEvent id="Event_ApprovalRejected" name="Rejected by approver">
+    <bpmn:intermediateThrowEvent id="Event_RejectedByFA" name="Rejected by FA">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={rejected: approvals[item != null and item.approved = false][1], reason: if rejected = null then &#34;The request was not approved.&#34; else &#34;Rejected by &#34; + rejected.role + (if rejected.remarks = &#34;&#34; then &#34;.&#34; else &#34;: &#34; + rejected.remarks)}.reason" target="rejectionReason" />
-          <zeebe:output source="=&#34;APPROVAL&#34;" target="rejectionStage" />
+          <zeebe:output source="=&#34;Rejected by the Faculty Advisor&#34; + (if faApproval.remarks = &#34;&#34; then &#34;.&#34; else &#34;: &#34; + faApproval.remarks)" target="rejectionReason" />
+          <zeebe:output source="=&#34;FA_APPROVAL&#34;" target="rejectionStage" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_ApprovalRejected</bpmn:incoming>
+      <bpmn:incoming>Flow_FA_Rejected</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_4</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="Event_RejectedByAA" name="Rejected by AA">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=&#34;Rejected by the Academic Advisor&#34; + (if aaApproval.remarks = &#34;&#34; then &#34;.&#34; else &#34;: &#34; + aaApproval.remarks)" target="rejectionReason" />
+          <zeebe:output source="=&#34;AA_APPROVAL&#34;" target="rejectionStage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_AA_Rejected</bpmn:incoming>
       <bpmn:outgoing>Flow_Reject_5</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="Event_RejectedByHOD" name="Rejected by HOD">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=&#34;Rejected by the Head of Department&#34; + (if hodApproval.remarks = &#34;&#34; then &#34;.&#34; else &#34;: &#34; + hodApproval.remarks)" target="rejectionReason" />
+          <zeebe:output source="=&#34;HOD_APPROVAL&#34;" target="rejectionStage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_HOD_Rejected</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_6</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
     <bpmn:intermediateThrowEvent id="Event_FeeNotPaid" name="Fee not paid">
       <bpmn:extensionElements>
@@ -272,7 +320,7 @@
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_ToFeeNotPaid</bpmn:incoming>
-      <bpmn:outgoing>Flow_Reject_6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Reject_7</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
     <bpmn:intermediateThrowEvent id="Event_PaymentInvalid" name="Payment rejected">
       <bpmn:extensionElements>
@@ -282,7 +330,7 @@
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_ToPaymentInvalid</bpmn:incoming>
-      <bpmn:outgoing>Flow_Reject_7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Reject_8</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
     <bpmn:exclusiveGateway id="Gateway_RejectMerge">
       <bpmn:incoming>Flow_Reject_1</bpmn:incoming>
@@ -292,6 +340,7 @@
       <bpmn:incoming>Flow_Reject_5</bpmn:incoming>
       <bpmn:incoming>Flow_Reject_6</bpmn:incoming>
       <bpmn:incoming>Flow_Reject_7</bpmn:incoming>
+      <bpmn:incoming>Flow_Reject_8</bpmn:incoming>
       <bpmn:outgoing>Flow_Reject_Notify</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:callActivity id="CallActivity_NotifyRejected" name="Notify student (rejected)">
@@ -326,35 +375,47 @@
     <bpmn:sequenceFlow id="Flow_Condonable" name="Yes" sourceRef="Gateway_Condonable" targetRef="SubProcess_Documents">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=eligibility.condonable = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_Main_05" sourceRef="SubProcess_Documents" targetRef="CallActivity_Approval" />
-    <bpmn:sequenceFlow id="Flow_Main_06" sourceRef="CallActivity_Approval" targetRef="Gateway_AllApproved" />
-    <bpmn:sequenceFlow id="Flow_AllApproved" name="Yes" sourceRef="Gateway_AllApproved" targetRef="SubProcess_Fee">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=every a in approvals satisfies a.approved = true</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_Main_05" sourceRef="SubProcess_Documents" targetRef="CallActivity_FA" />
+    <bpmn:sequenceFlow id="Flow_To_Gateway_FA" sourceRef="CallActivity_FA" targetRef="Gateway_FA" />
+    <bpmn:sequenceFlow id="Flow_FA_Approved" name="Yes" sourceRef="Gateway_FA" targetRef="CallActivity_AA">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=faApproval.approved = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_FA_Rejected" name="No" sourceRef="Gateway_FA" targetRef="Event_RejectedByFA" />
+    <bpmn:sequenceFlow id="Flow_To_Gateway_AA" sourceRef="CallActivity_AA" targetRef="Gateway_AA" />
+    <bpmn:sequenceFlow id="Flow_AA_Approved" name="Yes" sourceRef="Gateway_AA" targetRef="CallActivity_HOD">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=aaApproval.approved = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AA_Rejected" name="No" sourceRef="Gateway_AA" targetRef="Event_RejectedByAA" />
+    <bpmn:sequenceFlow id="Flow_To_Gateway_HOD" sourceRef="CallActivity_HOD" targetRef="Gateway_HOD" />
+    <bpmn:sequenceFlow id="Flow_HOD_Approved" name="Yes" sourceRef="Gateway_HOD" targetRef="SubProcess_Fee">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hodApproval.approved = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_HOD_Rejected" name="No" sourceRef="Gateway_HOD" targetRef="Event_RejectedByHOD" />
     <bpmn:sequenceFlow id="Flow_Main_07" sourceRef="SubProcess_Fee" targetRef="Gateway_SisRetry" />
     <bpmn:sequenceFlow id="Flow_Main_08" sourceRef="Gateway_SisRetry" targetRef="Task_UpdateSIS" />
     <bpmn:sequenceFlow id="Flow_SisFailed" sourceRef="Boundary_SisFailed" targetRef="UserTask_AdminFix" />
     <bpmn:sequenceFlow id="Flow_SisRetry" name="Retry" sourceRef="UserTask_AdminFix" targetRef="Gateway_SisRetry" />
     <bpmn:sequenceFlow id="Flow_Main_09" sourceRef="Task_UpdateSIS" targetRef="Gateway_SplitApproved" />
     <bpmn:sequenceFlow id="Flow_Main_10" sourceRef="Gateway_SplitApproved" targetRef="CallActivity_NotifyApproved" />
-    <bpmn:sequenceFlow id="Flow_Main_11" sourceRef="Gateway_SplitApproved" targetRef="Task_RecordApproved" />
-    <bpmn:sequenceFlow id="Flow_Main_12" sourceRef="CallActivity_NotifyApproved" targetRef="Gateway_JoinApproved" />
-    <bpmn:sequenceFlow id="Flow_Main_13" sourceRef="Task_RecordApproved" targetRef="Gateway_JoinApproved" />
-    <bpmn:sequenceFlow id="Flow_Main_14" sourceRef="Gateway_JoinApproved" targetRef="End_Condoned" />
+    <bpmn:sequenceFlow id="Flow_Main_11" sourceRef="Gateway_SplitApproved" targetRef="CallActivity_InformApprovers" />
+    <bpmn:sequenceFlow id="Flow_Main_12" sourceRef="Gateway_SplitApproved" targetRef="Task_RecordApproved" />
+    <bpmn:sequenceFlow id="Flow_Main_13" sourceRef="CallActivity_NotifyApproved" targetRef="Gateway_JoinApproved" />
+    <bpmn:sequenceFlow id="Flow_Main_14" sourceRef="CallActivity_InformApprovers" targetRef="Gateway_JoinApproved" />
+    <bpmn:sequenceFlow id="Flow_Main_15" sourceRef="Task_RecordApproved" targetRef="Gateway_JoinApproved" />
+    <bpmn:sequenceFlow id="Flow_Main_16" sourceRef="Gateway_JoinApproved" targetRef="End_Condoned" />
     <bpmn:sequenceFlow id="Flow_ToStudentNotFound" sourceRef="Boundary_StudentNotFound" targetRef="Event_StudentNotFound" />
     <bpmn:sequenceFlow id="Flow_NotCondonable" name="No" sourceRef="Gateway_Condonable" targetRef="Event_NotCondonable" />
-    <bpmn:sequenceFlow id="Flow_ToDocsNotSubmitted" sourceRef="Boundary_DocsTimeout" targetRef="Event_DocsNotSubmitted" />
     <bpmn:sequenceFlow id="Flow_ToDocsInvalid" sourceRef="Boundary_DocInvalid" targetRef="Event_DocsInvalid" />
-    <bpmn:sequenceFlow id="Flow_ApprovalRejected" name="No" sourceRef="Gateway_AllApproved" targetRef="Event_ApprovalRejected" />
     <bpmn:sequenceFlow id="Flow_ToFeeNotPaid" sourceRef="Boundary_FeeTimeout" targetRef="Event_FeeNotPaid" />
     <bpmn:sequenceFlow id="Flow_ToPaymentInvalid" sourceRef="Boundary_PaymentInvalid" targetRef="Event_PaymentInvalid" />
     <bpmn:sequenceFlow id="Flow_Reject_1" sourceRef="Event_StudentNotFound" targetRef="Gateway_RejectMerge" />
     <bpmn:sequenceFlow id="Flow_Reject_2" sourceRef="Event_NotCondonable" targetRef="Gateway_RejectMerge" />
-    <bpmn:sequenceFlow id="Flow_Reject_3" sourceRef="Event_DocsNotSubmitted" targetRef="Gateway_RejectMerge" />
-    <bpmn:sequenceFlow id="Flow_Reject_4" sourceRef="Event_DocsInvalid" targetRef="Gateway_RejectMerge" />
-    <bpmn:sequenceFlow id="Flow_Reject_5" sourceRef="Event_ApprovalRejected" targetRef="Gateway_RejectMerge" />
-    <bpmn:sequenceFlow id="Flow_Reject_6" sourceRef="Event_FeeNotPaid" targetRef="Gateway_RejectMerge" />
-    <bpmn:sequenceFlow id="Flow_Reject_7" sourceRef="Event_PaymentInvalid" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_3" sourceRef="Event_DocsInvalid" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_4" sourceRef="Event_RejectedByFA" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_5" sourceRef="Event_RejectedByAA" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_6" sourceRef="Event_RejectedByHOD" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_7" sourceRef="Event_FeeNotPaid" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_Reject_8" sourceRef="Event_PaymentInvalid" targetRef="Gateway_RejectMerge" />
     <bpmn:sequenceFlow id="Flow_Reject_Notify" sourceRef="Gateway_RejectMerge" targetRef="CallActivity_NotifyRejected" />
     <bpmn:sequenceFlow id="Flow_Reject_Record" sourceRef="CallActivity_NotifyRejected" targetRef="Task_RecordRejected" />
     <bpmn:sequenceFlow id="Flow_Reject_End" sourceRef="Task_RecordRejected" targetRef="End_Rejected" />
@@ -368,7 +429,7 @@
       <bpmndi:BPMNShape id="Start_Submitted_di" bpmnElement="Start_Submitted">
         <dc:Bounds x="150" y="282" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="123" y="325" width="90" height="27" />
+          <dc:Bounds x="118" y="325" width="100" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_FetchAttendance_di" bpmnElement="Task_FetchAttendance">
@@ -401,10 +462,10 @@
           <dc:Bounds x="805" y="325" width="70" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_UploadDocuments_di" bpmnElement="UserTask_UploadDocuments">
+      <bpmndi:BPMNShape id="Task_ValidateDocument_di" bpmnElement="Task_ValidateDocument">
         <dc:Bounds x="890" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ValidateDocument_di" bpmnElement="Task_ValidateDocument">
+      <bpmndi:BPMNShape id="Task_SummariseDocuments_di" bpmnElement="Task_SummariseDocuments">
         <dc:Bounds x="1040" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_DocsVerified_di" bpmnElement="End_DocsVerified">
@@ -413,91 +474,106 @@
           <dc:Bounds x="1132" y="325" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Boundary_DocsTimeout_di" bpmnElement="Boundary_DocsTimeout">
-        <dc:Bounds x="862" y="182" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="900" y="168" width="80" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_DocInvalid_di" bpmnElement="Boundary_DocInvalid">
         <dc:Bounds x="1132" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1170" y="168" width="85" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="CallActivity_Approval_di" bpmnElement="CallActivity_Approval">
+      <bpmndi:BPMNShape id="CallActivity_FA_di" bpmnElement="CallActivity_FA">
         <dc:Bounds x="1270" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_AllApproved_di" bpmnElement="Gateway_AllApproved" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gateway_FA_di" bpmnElement="Gateway_FA" isMarkerVisible="true">
         <dc:Bounds x="1420" y="275" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1410" y="332" width="70" height="14" />
+          <dc:Bounds x="1405" y="332" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_AA_di" bpmnElement="CallActivity_AA">
+        <dc:Bounds x="1520" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AA_di" bpmnElement="Gateway_AA" isMarkerVisible="true">
+        <dc:Bounds x="1670" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1655" y="332" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_HOD_di" bpmnElement="CallActivity_HOD">
+        <dc:Bounds x="1770" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_HOD_di" bpmnElement="Gateway_HOD" isMarkerVisible="true">
+        <dc:Bounds x="1920" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1905" y="332" width="80" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="SubProcess_Fee_di" bpmnElement="SubProcess_Fee" isExpanded="true">
-        <dc:Bounds x="1520" y="200" width="420" height="200" />
+        <dc:Bounds x="2020" y="200" width="420" height="200" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Start_Fee_di" bpmnElement="Start_Fee">
-        <dc:Bounds x="1552" y="282" width="36" height="36" />
+        <dc:Bounds x="2052" y="282" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1536" y="325" width="70" height="14" />
+          <dc:Bounds x="2036" y="325" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_PayFee_di" bpmnElement="UserTask_PayFee">
-        <dc:Bounds x="1620" y="260" width="100" height="80" />
+        <dc:Bounds x="2120" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_VerifyPayment_di" bpmnElement="Task_VerifyPayment">
-        <dc:Bounds x="1770" y="260" width="100" height="80" />
+        <dc:Bounds x="2270" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_FeePaid_di" bpmnElement="End_FeePaid">
-        <dc:Bounds x="1890" y="282" width="36" height="36" />
+        <dc:Bounds x="2392" y="282" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1886" y="325" width="44" height="14" />
+          <dc:Bounds x="2388" y="325" width="44" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_FeeTimeout_di" bpmnElement="Boundary_FeeTimeout">
-        <dc:Bounds x="1622" y="182" width="36" height="36" />
+        <dc:Bounds x="2122" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1660" y="168" width="100" height="14" />
+          <dc:Bounds x="2160" y="168" width="100" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_PaymentInvalid_di" bpmnElement="Boundary_PaymentInvalid">
-        <dc:Bounds x="1812" y="182" width="36" height="36" />
+        <dc:Bounds x="2312" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1850" y="168" width="80" height="14" />
+          <dc:Bounds x="2350" y="168" width="80" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_SisRetry_di" bpmnElement="Gateway_SisRetry" isMarkerVisible="true">
-        <dc:Bounds x="2000" y="275" width="50" height="50" />
+        <dc:Bounds x="2500" y="275" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_UpdateSIS_di" bpmnElement="Task_UpdateSIS">
-        <dc:Bounds x="2100" y="260" width="100" height="80" />
+        <dc:Bounds x="2600" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Boundary_SisFailed_di" bpmnElement="Boundary_SisFailed">
-        <dc:Bounds x="2132" y="322" width="36" height="36" />
+        <dc:Bounds x="2632" y="322" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2170" y="360" width="90" height="14" />
+          <dc:Bounds x="2670" y="360" width="90" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_AdminFix_di" bpmnElement="UserTask_AdminFix">
-        <dc:Bounds x="2100" y="440" width="100" height="80" />
+        <dc:Bounds x="2600" y="440" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_SplitApproved_di" bpmnElement="Gateway_SplitApproved">
-        <dc:Bounds x="2250" y="275" width="50" height="50" />
+        <dc:Bounds x="2750" y="275" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_NotifyApproved_di" bpmnElement="CallActivity_NotifyApproved">
-        <dc:Bounds x="2350" y="260" width="100" height="80" />
+        <dc:Bounds x="2850" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_InformApprovers_di" bpmnElement="CallActivity_InformApprovers">
+        <dc:Bounds x="2850" y="400" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_RecordApproved_di" bpmnElement="Task_RecordApproved">
-        <dc:Bounds x="2350" y="400" width="100" height="80" />
+        <dc:Bounds x="2850" y="540" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_JoinApproved_di" bpmnElement="Gateway_JoinApproved">
-        <dc:Bounds x="2500" y="275" width="50" height="50" />
+        <dc:Bounds x="3000" y="275" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_Condoned_di" bpmnElement="End_Condoned">
-        <dc:Bounds x="2600" y="282" width="36" height="36" />
+        <dc:Bounds x="3100" y="282" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2580" y="325" width="76" height="27" />
+          <dc:Bounds x="3080" y="325" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_StudentNotFound_di" bpmnElement="Event_StudentNotFound">
@@ -512,49 +588,55 @@
           <dc:Bounds x="737" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_DocsNotSubmitted_di" bpmnElement="Event_DocsNotSubmitted">
-        <dc:Bounds x="862" y="102" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="902" y="106" width="95" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_DocsInvalid_di" bpmnElement="Event_DocsInvalid">
         <dc:Bounds x="1132" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1172" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_ApprovalRejected_di" bpmnElement="Event_ApprovalRejected">
+      <bpmndi:BPMNShape id="Event_RejectedByFA_di" bpmnElement="Event_RejectedByFA">
         <dc:Bounds x="1427" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1467" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_FeeNotPaid_di" bpmnElement="Event_FeeNotPaid">
-        <dc:Bounds x="1622" y="102" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_RejectedByAA_di" bpmnElement="Event_RejectedByAA">
+        <dc:Bounds x="1677" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1662" y="106" width="95" height="27" />
+          <dc:Bounds x="1717" y="106" width="95" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_RejectedByHOD_di" bpmnElement="Event_RejectedByHOD">
+        <dc:Bounds x="1927" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1967" y="106" width="95" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_FeeNotPaid_di" bpmnElement="Event_FeeNotPaid">
+        <dc:Bounds x="2122" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2162" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_PaymentInvalid_di" bpmnElement="Event_PaymentInvalid">
-        <dc:Bounds x="1812" y="102" width="36" height="36" />
+        <dc:Bounds x="2312" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1852" y="106" width="95" height="27" />
+          <dc:Bounds x="2352" y="106" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_RejectMerge_di" bpmnElement="Gateway_RejectMerge" isMarkerVisible="true">
-        <dc:Bounds x="2000" y="25" width="50" height="50" />
+        <dc:Bounds x="2500" y="25" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_NotifyRejected_di" bpmnElement="CallActivity_NotifyRejected">
-        <dc:Bounds x="2100" y="10" width="100" height="80" />
+        <dc:Bounds x="2600" y="10" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_RecordRejected_di" bpmnElement="Task_RecordRejected">
-        <dc:Bounds x="2250" y="10" width="100" height="80" />
+        <dc:Bounds x="2750" y="10" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_Rejected_di" bpmnElement="End_Rejected">
-        <dc:Bounds x="2400" y="32" width="36" height="36" />
+        <dc:Bounds x="2900" y="32" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2378" y="75" width="80" height="14" />
+          <dc:Bounds x="2878" y="75" width="80" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_Main_01_di" bpmnElement="Flow_Main_01">
@@ -596,74 +678,127 @@
         <di:waypoint x="1210" y="300" />
         <di:waypoint x="1270" y="300" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Main_06_di" bpmnElement="Flow_Main_06">
+      <bpmndi:BPMNEdge id="Flow_To_Gateway_FA_di" bpmnElement="Flow_To_Gateway_FA">
         <di:waypoint x="1370" y="300" />
         <di:waypoint x="1420" y="300" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_AllApproved_di" bpmnElement="Flow_AllApproved">
+      <bpmndi:BPMNEdge id="Flow_FA_Approved_di" bpmnElement="Flow_FA_Approved">
         <di:waypoint x="1470" y="300" />
         <di:waypoint x="1520" y="300" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1482" y="282" width="19" height="14" />
+          <dc:Bounds x="1477" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FA_Rejected_di" bpmnElement="Flow_FA_Rejected">
+        <di:waypoint x="1445" y="275" />
+        <di:waypoint x="1445" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1452" y="230" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_To_Gateway_AA_di" bpmnElement="Flow_To_Gateway_AA">
+        <di:waypoint x="1620" y="300" />
+        <di:waypoint x="1670" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AA_Approved_di" bpmnElement="Flow_AA_Approved">
+        <di:waypoint x="1720" y="300" />
+        <di:waypoint x="1770" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1727" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AA_Rejected_di" bpmnElement="Flow_AA_Rejected">
+        <di:waypoint x="1695" y="275" />
+        <di:waypoint x="1695" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1702" y="230" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_To_Gateway_HOD_di" bpmnElement="Flow_To_Gateway_HOD">
+        <di:waypoint x="1870" y="300" />
+        <di:waypoint x="1920" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HOD_Approved_di" bpmnElement="Flow_HOD_Approved">
+        <di:waypoint x="1970" y="300" />
+        <di:waypoint x="2020" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1977" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HOD_Rejected_di" bpmnElement="Flow_HOD_Rejected">
+        <di:waypoint x="1945" y="275" />
+        <di:waypoint x="1945" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1952" y="230" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Fee_1_di" bpmnElement="Flow_Fee_1">
-        <di:waypoint x="1588" y="300" />
-        <di:waypoint x="1620" y="300" />
+        <di:waypoint x="2088" y="300" />
+        <di:waypoint x="2120" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Fee_2_di" bpmnElement="Flow_Fee_2">
-        <di:waypoint x="1720" y="300" />
-        <di:waypoint x="1770" y="300" />
+        <di:waypoint x="2220" y="300" />
+        <di:waypoint x="2270" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Fee_3_di" bpmnElement="Flow_Fee_3">
-        <di:waypoint x="1870" y="300" />
-        <di:waypoint x="1890" y="300" />
+        <di:waypoint x="2370" y="300" />
+        <di:waypoint x="2392" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_07_di" bpmnElement="Flow_Main_07">
-        <di:waypoint x="1940" y="300" />
-        <di:waypoint x="2000" y="300" />
+        <di:waypoint x="2440" y="300" />
+        <di:waypoint x="2500" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_08_di" bpmnElement="Flow_Main_08">
-        <di:waypoint x="2050" y="300" />
-        <di:waypoint x="2100" y="300" />
+        <di:waypoint x="2550" y="300" />
+        <di:waypoint x="2600" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_SisFailed_di" bpmnElement="Flow_SisFailed">
-        <di:waypoint x="2150" y="358" />
-        <di:waypoint x="2150" y="440" />
+        <di:waypoint x="2650" y="358" />
+        <di:waypoint x="2650" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_SisRetry_di" bpmnElement="Flow_SisRetry">
-        <di:waypoint x="2100" y="480" />
-        <di:waypoint x="2025" y="480" />
-        <di:waypoint x="2025" y="325" />
+        <di:waypoint x="2600" y="480" />
+        <di:waypoint x="2525" y="480" />
+        <di:waypoint x="2525" y="325" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2040" y="462" width="30" height="14" />
+          <dc:Bounds x="2540" y="462" width="30" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_09_di" bpmnElement="Flow_Main_09">
-        <di:waypoint x="2200" y="300" />
-        <di:waypoint x="2250" y="300" />
+        <di:waypoint x="2700" y="300" />
+        <di:waypoint x="2750" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_10_di" bpmnElement="Flow_Main_10">
-        <di:waypoint x="2300" y="300" />
-        <di:waypoint x="2350" y="300" />
+        <di:waypoint x="2800" y="300" />
+        <di:waypoint x="2850" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_11_di" bpmnElement="Flow_Main_11">
-        <di:waypoint x="2275" y="325" />
-        <di:waypoint x="2275" y="440" />
-        <di:waypoint x="2350" y="440" />
+        <di:waypoint x="2775" y="325" />
+        <di:waypoint x="2775" y="440" />
+        <di:waypoint x="2850" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_12_di" bpmnElement="Flow_Main_12">
-        <di:waypoint x="2450" y="300" />
-        <di:waypoint x="2500" y="300" />
+        <di:waypoint x="2775" y="325" />
+        <di:waypoint x="2775" y="580" />
+        <di:waypoint x="2850" y="580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_13_di" bpmnElement="Flow_Main_13">
-        <di:waypoint x="2450" y="440" />
-        <di:waypoint x="2525" y="440" />
-        <di:waypoint x="2525" y="325" />
+        <di:waypoint x="2950" y="300" />
+        <di:waypoint x="3000" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Main_14_di" bpmnElement="Flow_Main_14">
-        <di:waypoint x="2550" y="300" />
-        <di:waypoint x="2600" y="300" />
+        <di:waypoint x="2950" y="440" />
+        <di:waypoint x="3025" y="440" />
+        <di:waypoint x="3025" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Main_15_di" bpmnElement="Flow_Main_15">
+        <di:waypoint x="2950" y="580" />
+        <di:waypoint x="3025" y="580" />
+        <di:waypoint x="3025" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Main_16_di" bpmnElement="Flow_Main_16">
+        <di:waypoint x="3050" y="300" />
+        <di:waypoint x="3100" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToStudentNotFound_di" bpmnElement="Flow_ToStudentNotFound">
         <di:waypoint x="290" y="242" />
@@ -676,75 +811,69 @@
           <dc:Bounds x="722" y="230" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ToDocsNotSubmitted_di" bpmnElement="Flow_ToDocsNotSubmitted">
-        <di:waypoint x="880" y="182" />
-        <di:waypoint x="880" y="138" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToDocsInvalid_di" bpmnElement="Flow_ToDocsInvalid">
         <di:waypoint x="1150" y="182" />
         <di:waypoint x="1150" y="138" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ApprovalRejected_di" bpmnElement="Flow_ApprovalRejected">
-        <di:waypoint x="1445" y="275" />
-        <di:waypoint x="1445" y="138" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1452" y="230" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToFeeNotPaid_di" bpmnElement="Flow_ToFeeNotPaid">
-        <di:waypoint x="1640" y="182" />
-        <di:waypoint x="1640" y="138" />
+        <di:waypoint x="2140" y="182" />
+        <di:waypoint x="2140" y="138" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToPaymentInvalid_di" bpmnElement="Flow_ToPaymentInvalid">
-        <di:waypoint x="1830" y="182" />
-        <di:waypoint x="1830" y="138" />
+        <di:waypoint x="2330" y="182" />
+        <di:waypoint x="2330" y="138" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_1_di" bpmnElement="Flow_Reject_1">
         <di:waypoint x="290" y="102" />
         <di:waypoint x="290" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_2_di" bpmnElement="Flow_Reject_2">
         <di:waypoint x="715" y="102" />
         <di:waypoint x="715" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_3_di" bpmnElement="Flow_Reject_3">
-        <di:waypoint x="880" y="102" />
-        <di:waypoint x="880" y="50" />
-        <di:waypoint x="2000" y="50" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Reject_4_di" bpmnElement="Flow_Reject_4">
         <di:waypoint x="1150" y="102" />
         <di:waypoint x="1150" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Reject_5_di" bpmnElement="Flow_Reject_5">
+      <bpmndi:BPMNEdge id="Flow_Reject_4_di" bpmnElement="Flow_Reject_4">
         <di:waypoint x="1445" y="102" />
         <di:waypoint x="1445" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="2500" y="50" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_5_di" bpmnElement="Flow_Reject_5">
+        <di:waypoint x="1695" y="102" />
+        <di:waypoint x="1695" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_6_di" bpmnElement="Flow_Reject_6">
-        <di:waypoint x="1640" y="102" />
-        <di:waypoint x="1640" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="1945" y="102" />
+        <di:waypoint x="1945" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_7_di" bpmnElement="Flow_Reject_7">
-        <di:waypoint x="1830" y="102" />
-        <di:waypoint x="1830" y="50" />
-        <di:waypoint x="2000" y="50" />
+        <di:waypoint x="2140" y="102" />
+        <di:waypoint x="2140" y="50" />
+        <di:waypoint x="2500" y="50" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_8_di" bpmnElement="Flow_Reject_8">
+        <di:waypoint x="2330" y="102" />
+        <di:waypoint x="2330" y="50" />
+        <di:waypoint x="2500" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_Notify_di" bpmnElement="Flow_Reject_Notify">
-        <di:waypoint x="2050" y="50" />
-        <di:waypoint x="2100" y="50" />
+        <di:waypoint x="2550" y="50" />
+        <di:waypoint x="2600" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_Record_di" bpmnElement="Flow_Reject_Record">
-        <di:waypoint x="2200" y="50" />
-        <di:waypoint x="2250" y="50" />
+        <di:waypoint x="2700" y="50" />
+        <di:waypoint x="2750" y="50" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Reject_End_di" bpmnElement="Flow_Reject_End">
-        <di:waypoint x="2350" y="50" />
-        <di:waypoint x="2400" y="50" />
+        <di:waypoint x="2850" y="50" />
+        <di:waypoint x="2900" y="50" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
