@@ -22,3 +22,16 @@ jobs:
           cache: maven
       - name: Compile, test and package
         run: mvn -B -ntp package
+      - name: Smoke test the REST API (no Camunda connection)
+        env:
+          CAMUNDA_CLUSTER_ID: smoke-test
+          CAMUNDA_CLIENT_ID: smoke-test
+          CAMUNDA_CLIENT_SECRET: smoke-test
+          DEPLOY_ON_STARTUP: "false"
+        run: |
+          java -jar target/condonation-backend.jar > /tmp/app.log 2>&1 &
+          ../.github/scripts/smoke-test.sh
+      - name: Backend log
+        if: always()
+        working-directory: .
+        run: grep -v "io.camunda.client.impl\|io.camunda.client.job" /tmp/app.log | tail -80 || true
