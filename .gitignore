@@ -6,7 +6,7 @@
 backend-springboot/target/
 *.class
 *.log
-backend-springboot/data/*.db
+backend-springboot/data/
 *.mv.db
 *.trace.db
 

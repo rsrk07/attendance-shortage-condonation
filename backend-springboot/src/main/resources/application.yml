@@ -1,0 +1,69 @@
+# All secrets and environment-specific values come from environment variables
+# (see .env.example in the repository root). Nothing secret is stored in this file.
+
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: condonation-backend
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:./data/condonation}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:true}
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+camunda:
+  client:
+    mode: saas
+    auth:
+      client-id: ${CAMUNDA_CLIENT_ID:}
+      client-secret: ${CAMUNDA_CLIENT_SECRET:}
+    cloud:
+      cluster-id: ${CAMUNDA_CLUSTER_ID:}
+      region: ${CAMUNDA_REGION:sin-1}
+    worker:
+      defaults:
+        max-jobs-active: 8
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  process-id: attendance-shortage-condonation
+  deploy-on-startup: ${DEPLOY_ON_STARTUP:true}
+  demo-password: ${DEMO_PASSWORD:demo123}
+  token-ttl: ${TOKEN_TTL:PT12H}
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,https://*.app.github.dev}
+  # Timers used by the process (ISO-8601 durations)
+  fee-deadline: ${FEE_DEADLINE:P7D}
+  reminder-interval: ${REMINDER_INTERVAL:PT24H}
+  # Start new requests with a simulated SIS failure (admin can toggle this at runtime)
+  simulate-sis-failure: ${SIMULATE_SIS_FAILURE:false}
+  # When set, every notification e-mail (student and approvers) goes to this one inbox - handy for demos
+  notification-email: ${NOTIFICATION_EMAIL:}
+  student-email-domain: ${STUDENT_EMAIL_DOMAIN:srmist.edu.in}
+  approver-emails:
+    fa: ${FA_EMAIL:fa@example.com}
+    aa: ${AA_EMAIL:aa@example.com}
+    hod: ${HOD_EMAIL:hod@example.com}
+
+logging:
+  level:
+    com.attendance.condonation: INFO
