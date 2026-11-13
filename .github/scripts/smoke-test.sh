@@ -7,8 +7,9 @@ pass() { echo "PASS  $1"; }
 fail() { echo "FAIL  $1"; exit 1; }
 code() { curl -s -o /tmp/body -w '%{http_code}' "$@"; }
 
+# Wait until the app is up and the startup seeding has created the demo users
 for i in $(seq 1 90); do
-  if curl -sf "$API/auth/demo-users" > /dev/null; then break; fi
+  if curl -sf "$API/auth/demo-users" > /tmp/users && [ "$(jq length /tmp/users)" -gt 0 ]; then break; fi
   sleep 2
 done
 curl -sf "$API/auth/demo-users" > /tmp/users || fail "app did not start"
