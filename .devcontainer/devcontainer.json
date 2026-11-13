@@ -1,0 +1,22 @@
+{
+  "name": "Attendance condonation",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  },
+  "postCreateCommand": "[ -f .env ] || cp .env.example .env; echo 'Settings are in .env: add your Camunda client ID and secret, then run: docker compose up --build'",
+  "forwardPorts": [3000, 8080],
+  "portsAttributes": {
+    "3000": { "label": "Website", "onAutoForward": "openBrowser" },
+    "8080": { "label": "Backend API", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": [".env", "README.md"]
+    }
+  }
+}

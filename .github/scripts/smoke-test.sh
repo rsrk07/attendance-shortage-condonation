@@ -2,7 +2,7 @@
 # Starts the backend jar without a real Camunda connection and checks the REST API end to end
 # (login, seeded data, validation, upload, authorization). Camunda calls are expected to fail (503).
 set -euo pipefail
-API=http://localhost:8080/api
+API=${API:-http://localhost:8080/api}
 pass() { echo "PASS  $1"; }
 fail() { echo "FAIL  $1"; exit 1; }
 code() { curl -s -o /tmp/body -w '%{http_code}' "$@"; }
