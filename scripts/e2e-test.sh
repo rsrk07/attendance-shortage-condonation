@@ -141,6 +141,7 @@ F=$(upload "$S2" /tmp/fake-certificate.pdf)
 if R=$(submit "$S2" 21ECC301T MEDICAL "$F") && wait_final "$S2" "$R"; then
   outcome "document rejected" REJECTED DOCUMENTS
   check "document marked rejected" "$(jq -r '.request.documents[0].verificationStatus' /tmp/status)" REJECTED
+  check "worker's note reaches the student" "$(jq -r '.request.rejectionReason | contains("not a real PDF")' /tmp/status)" true
 else fail "document rejection scenario did not finish"; fi
 
 # ---------------------------------------------------------------- 4
@@ -156,6 +157,7 @@ echo; echo "5. Underpaid fee: RA2311004010101, 21ECC302J (65.28%), medical, pays
 F=$(upload "$S1" /tmp/medical-certificate.pdf)
 if R=$(submit "$S1" 21ECC302J MEDICAL "$F") && approve_all "$R" && pay "$S1" "$R" 100 && wait_final "$S1" "$R"; then
   outcome "payment rejected" REJECTED FEE
+  check "worker's note reaches the student" "$(jq -r '.request.rejectionReason | contains("less than the fee")' /tmp/status)" true
 else fail "underpayment scenario did not finish"; fi
 
 # ---------------------------------------------------------------- 6

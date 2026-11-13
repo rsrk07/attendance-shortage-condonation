@@ -83,6 +83,11 @@
       <bpmn:sequenceFlow id="Flow_Docs_3" sourceRef="Task_SummariseDocuments" targetRef="End_DocsVerified" />
     </bpmn:subProcess>
     <bpmn:boundaryEvent id="Boundary_DocInvalid" name="Invalid document" attachedToRef="SubProcess_Documents">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=documentRejectionNote" target="documentRejectionNote" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_ToDocsInvalid</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorDef_DocInvalid" errorRef="Error_DocInvalid" />
     </bpmn:boundaryEvent>
@@ -170,6 +175,11 @@
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:boundaryEvent id="Boundary_PaymentInvalid" name="Payment invalid" attachedToRef="SubProcess_Fee">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=paymentRejectionNote" target="paymentRejectionNote" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_ToPaymentInvalid</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorDef_PaymentInvalid" errorRef="Error_PaymentInvalid" />
     </bpmn:boundaryEvent>
@@ -186,6 +196,11 @@
       <bpmn:outgoing>Flow_Main_09</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:boundaryEvent id="Boundary_SisFailed" name="SIS update failed" attachedToRef="Task_UpdateSIS">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=sisError" target="sisError" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_SisFailed</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorDef_SisFailed" errorRef="Error_SisFailed" />
     </bpmn:boundaryEvent>
