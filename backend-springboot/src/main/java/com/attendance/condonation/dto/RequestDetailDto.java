@@ -1,6 +1,8 @@
 package com.attendance.condonation.dto;
 
 import com.attendance.condonation.entity.ReasonCategory;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.attendance.condonation.entity.RequestStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,7 +20,7 @@ public record RequestDetailDto(
     String reasonCategoryLabel,
     String reason,
     RequestStatus status,
-    Long processInstanceKey,
+    @JsonSerialize(using = ToStringSerializer.class) Long processInstanceKey,
     BigDecimal attendancePercentage,
     BigDecimal shortfall,
     String slab,

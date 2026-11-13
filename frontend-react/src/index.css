@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Design tokens: an academic office file. Register-ink blue for actions,
+   stamp inks (green / red) only for decisions, everything else quiet. */
+@theme {
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Public Sans", ui-sans-serif, sans-serif;
+
+  --color-paper: #f3f5f7;
+  --color-sheet: #ffffff;
+  --color-ink: #1b2a3d;
+  --color-ink-soft: #586676;
+  --color-rule: #d8dee5;
+  --color-register: #22508f;
+  --color-register-dark: #183c6d;
+  --color-approve: #2c6e49;
+  --color-reject: #b42318;
+  --color-pending: #9a6212;
+  --color-highlight: #fff4c2;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-feature-settings: "tnum" 1;
+  }
+  body {
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0.005em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-register);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded border border-rule bg-sheet px-3 py-2 text-ink placeholder:text-ink-soft/60
+      focus:border-register focus:outline-none focus:ring-2 focus:ring-register/20 disabled:bg-paper;
+  }
+  .field-error {
+    @apply border-reject focus:border-reject focus:ring-reject/20;
+  }
+  .btn-primary,
+  .btn-quiet,
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded px-4 py-2 font-semibold transition-colors
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-register text-white hover:bg-register-dark;
+  }
+  .btn-quiet {
+    @apply border border-rule bg-sheet text-ink hover:border-ink-soft;
+  }
+  .btn-danger {
+    @apply bg-reject text-white hover:bg-reject/90;
+  }
+  .link {
+    @apply font-medium text-register underline decoration-register/30 underline-offset-2 hover:decoration-register;
+  }
+  .sheet {
+    @apply rounded-md border border-rule bg-sheet;
+  }
+}
+
+/* The active step on the route slip is the only thing that moves on its own. */
+@keyframes slip-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(34 80 143 / 0.35); }
+  50% { box-shadow: 0 0 0 6px rgb(34 80 143 / 0); }
+}
+.slip-active {
+  animation: slip-pulse 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slip-active { animation: none; }
+}

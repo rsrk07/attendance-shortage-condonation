@@ -35,3 +35,27 @@ jobs:
         if: always()
         working-directory: .
         run: grep -v "io.camunda.client.impl\|io.camunda.client.job" /tmp/app.log | tail -80 || true
+
+  frontend:
+    name: Frontend (React + Vite)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+      - name: Build
+        run: npm run build
+      - name: Lockfile (printed when the repo has none yet)
+        if: hashFiles('frontend-react/package-lock.json') == ''
+        run: |
+          echo "LOCKFILE-BEGIN"
+          gzip -9c package-lock.json | base64 -w0
+          echo
+          echo "LOCKFILE-END"

@@ -1,10 +1,13 @@
 package com.attendance.condonation.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 public record TaskDto(
-    long taskKey,
+    // Zeebe keys are 64-bit; send them as strings so JavaScript keeps every digit
+    @JsonSerialize(using = ToStringSerializer.class) long taskKey,
     String name,
     String elementId,
     TaskKind kind,
