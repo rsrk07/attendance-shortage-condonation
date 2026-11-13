@@ -15,6 +15,19 @@ const SUGGESTED_DOCUMENT = {
 const REASON_MIN = 20;
 const REASON_MAX = 1000;
 
+/** Moves focus to the first field marked invalid, once React has rendered the errors. */
+export function focusFirstInvalid() {
+  setTimeout(() => {
+    const marked = document.querySelector("[aria-invalid='true']");
+    if (!marked) return;
+    const target = marked.matches("input, select, textarea")
+      ? marked
+      : marked.querySelector("input:not([disabled]), select, textarea");
+    marked.scrollIntoView({ block: "center" });
+    target?.focus({ preventScroll: true });
+  }, 0);
+}
+
 export default function NewRequestPage() {
   const navigate = useNavigate();
   const options = useApi(() => api("/meta/options"), []);
@@ -24,7 +37,8 @@ export default function NewRequestPage() {
   const [reasonCategory, setReasonCategory] = useState("");
   const [reason, setReason] = useState("");
   const [documents, setDocuments] = useState(() => [emptyDocumentRow()]);
-  const [errors, setErrors] = useState({});
+  const [attempted, setAttempted] = useState(false);
+  const [serverErrors, setServerErrors] = useState({});
   const [submitError, setSubmitError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,13 +73,16 @@ export default function NewRequestPage() {
     return next;
   }
 
+  // Errors show after the first submit and then update as the student fixes each field
+  const errors = { ...serverErrors, ...(attempted ? validate() : {}) };
+
   async function submit(event) {
     event.preventDefault();
     setSubmitError(null);
-    const found = validate();
-    setErrors(found);
-    if (Object.keys(found).length) {
-      document.querySelector("[aria-invalid='true']")?.focus();
+    setServerErrors({});
+    setAttempted(true);
+    if (Object.keys(validate()).length) {
+      focusFirstInvalid();
       return;
     }
     setSubmitting(true);
@@ -89,11 +106,7 @@ export default function NewRequestPage() {
     } catch (e) {
       setSubmitError(e.message);
       const { documents: documentsMessage, ...fieldErrors } = e.fieldErrors || {};
-      setErrors((current) => ({
-        ...current,
-        ...fieldErrors,
-        ...(documentsMessage ? { documentsGeneral: documentsMessage } : {}),
-      }));
+      setServerErrors({ ...fieldErrors, ...(documentsMessage ? { documentsGeneral: documentsMessage } : {}) });
       setSubmitting(false);
     }
   }

@@ -8,6 +8,7 @@ import { useAuth } from "../lib/auth.jsx";
 import { ROLE_TITLES, formatDateTime, percent, rupees, slabLabel } from "../lib/format.js";
 import { useApi } from "../lib/useApi.js";
 import { taskTitle } from "./InboxPage.jsx";
+import { focusFirstInvalid } from "./NewRequestPage.jsx";
 
 export default function TaskPage() {
   const { taskKey } = useParams();
@@ -131,10 +132,28 @@ function RequestSummary({ request, variables }) {
   );
 }
 
-function useSubmit(onDone) {
+/**
+ * Submit state for a task form. Client-side errors appear after the first attempt and then
+ * update live as fields change; server field errors are merged in.
+ */
+function useSubmit(onDone, validate) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [serverErrors, setServerErrors] = useState({});
+  const [attempted, setAttempted] = useState(false);
+  const fieldErrors = { ...serverErrors, ...(attempted ? validate() : {}) };
+
+  function submit(event, fn) {
+    event.preventDefault();
+    setAttempted(true);
+    setServerErrors({});
+    if (Object.keys(validate()).length) {
+      focusFirstInvalid();
+      return;
+    }
+    run(fn);
+  }
+
   async function run(fn) {
     setBusy(true);
     setError(null);
@@ -143,11 +162,11 @@ function useSubmit(onDone) {
       onDone();
     } catch (e) {
       setError(e.message);
-      setFieldErrors(e.fieldErrors || {});
+      setServerErrors(e.fieldErrors || {});
       setBusy(false);
     }
   }
-  return { busy, error, fieldErrors, setFieldErrors, run };
+  return { busy, error, fieldErrors, submit };
 }
 
 /* ------------------------------------------------------------------ FA / AA / HOD */
@@ -156,18 +175,6 @@ function ReviewTask({ task, request, variables, disabled }) {
   const navigate = useNavigate();
   const [decision, setDecision] = useState("");
   const [remarks, setRemarks] = useState("");
-  const submit = useSubmit(() =>
-    navigate("/inbox", {
-      state: {
-        flash: `${task.requestId || "The request"} ${decision === "APPROVED" ? "approved" : "rejected"}.${
-          decision === "APPROVED" && task.approverRole !== "HOD" ? " It has moved to the next approver." : ""
-        }`,
-      },
-    }),
-  );
-  const role = task.approverRole;
-  const earlier = (request?.approvals || []).filter((a) => a.role !== role);
-  const checks = variables.documentChecks || [];
 
   function validate() {
     const errors = {};
@@ -178,12 +185,22 @@ function ReviewTask({ task, request, variables, disabled }) {
     return errors;
   }
 
+  const submit = useSubmit(() =>
+    navigate("/inbox", {
+      state: {
+        flash: `${task.requestId || "The request"} ${decision === "APPROVED" ? "approved" : "rejected"}.${
+          decision === "APPROVED" && task.approverRole !== "HOD" ? " It has moved to the next approver." : ""
+        }`,
+      },
+    }),
+    validate,
+  );
+  const role = task.approverRole;
+  const earlier = (request?.approvals || []).filter((a) => a.role !== role);
+  const checks = variables.documentChecks || [];
+
   function onSubmit(event) {
-    event.preventDefault();
-    const errors = validate();
-    submit.setFieldErrors(errors);
-    if (Object.keys(errors).length) return;
-    submit.run(() =>
+    submit.submit(event, () =>
       api(`/tasks/${task.taskKey}/review`, { method: "POST", body: { decision, remarks: remarks.trim() } }),
     );
   }
@@ -318,14 +335,15 @@ function PayFeeTask({ task, request, variables }) {
   const [paymentReference, setPaymentReference] = useState("");
   const [amountPaid, setAmountPaid] = useState(fee != null ? String(fee) : "");
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-  const submit = useSubmit(() =>
-    navigate(task.requestId ? `/requests/${task.requestId}` : "/requests", {
-      state: { flash: "Payment submitted. It is being verified now." },
-    }),
-  );
-
   const amount = Number(amountPaid);
   const underpaid = fee != null && amountPaid !== "" && amount > 0 && amount < fee;
+  const submit = useSubmit(
+    () =>
+      navigate(task.requestId ? `/requests/${task.requestId}` : "/requests", {
+        state: { flash: "Payment submitted. It is being verified now." },
+      }),
+    validate,
+  );
 
   function validate() {
     const errors = {};
@@ -339,11 +357,7 @@ function PayFeeTask({ task, request, variables }) {
   }
 
   function onSubmit(event) {
-    event.preventDefault();
-    const errors = validate();
-    submit.setFieldErrors(errors);
-    if (Object.keys(errors).length) return;
-    submit.run(() =>
+    submit.submit(event, () =>
       api(`/tasks/${task.taskKey}/pay-fee`, {
         method: "POST",
         body: { paymentMode, paymentReference: paymentReference.trim(), amountPaid: amount, paymentConfirmed },
@@ -453,18 +467,21 @@ function AdminFixTask({ task, request, variables, disabled }) {
   const navigate = useNavigate();
   const [adminNote, setAdminNote] = useState("");
   const [sisRecordFixed, setSisRecordFixed] = useState(false);
-  const submit = useSubmit(() =>
-    navigate("/inbox", { state: { flash: `SIS update for ${task.requestId || "the request"} is being retried.` } }),
-  );
 
-  function onSubmit(event) {
-    event.preventDefault();
+  function validate() {
     const errors = {};
     if (!adminNote.trim()) errors.adminNote = "Describe what you fixed.";
     if (!sisRecordFixed) errors.sisRecordFixed = "Tick this once the record is fixed.";
-    submit.setFieldErrors(errors);
-    if (Object.keys(errors).length) return;
-    submit.run(() =>
+    return errors;
+  }
+
+  const submit = useSubmit(
+    () => navigate("/inbox", { state: { flash: `SIS update for ${task.requestId || "the request"} is being retried.` } }),
+    validate,
+  );
+
+  function onSubmit(event) {
+    submit.submit(event, () =>
       api(`/tasks/${task.taskKey}/admin-fix`, {
         method: "POST",
         body: { adminNote: adminNote.trim(), sisRecordFixed },
