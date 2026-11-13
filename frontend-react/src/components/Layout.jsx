@@ -42,7 +42,7 @@ export default function Layout() {
             <p className="text-sm text-ink-soft">For courses below 75% attendance</p>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <div className="text-right">
+            <div className="sm:text-right">
               <p className="font-semibold">{user.displayName}</p>
               <p className="text-ink-soft">{user.roleTitle}{user.studentId ? `, ${user.studentId}` : ""}</p>
             </div>

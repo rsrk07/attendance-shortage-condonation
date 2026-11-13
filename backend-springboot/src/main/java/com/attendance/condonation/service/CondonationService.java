@@ -99,7 +99,9 @@ public class CondonationService {
                     c.getPercentage(),
                     c.getPercentage().compareTo(REQUIRED_PERCENTAGE) < 0,
                     requestRepository.existsByStudentStudentIdAndCourseCodeAndStatusIn(
-                        user.studentId(), c.getCourseCode(), OPEN_STATUSES)))
+                        user.studentId(), c.getCourseCode(), OPEN_STATUSES),
+                    requestRepository.existsByStudentStudentIdAndCourseCodeAndStatusIn(
+                        user.studentId(), c.getCourseCode(), EnumSet.of(RequestStatus.APPROVED))))
         .toList();
   }
 
@@ -155,6 +157,10 @@ public class CondonationService {
     if (requestRepository.existsByStudentStudentIdAndCourseCodeAndStatusIn(
         student.getStudentId(), courseCode, OPEN_STATUSES)) {
       throw ApiException.conflict("You already have an open condonation request for " + courseCode + ".");
+    }
+    if (requestRepository.existsByStudentStudentIdAndCourseCodeAndStatusIn(
+        student.getStudentId(), courseCode, EnumSet.of(RequestStatus.APPROVED))) {
+      throw ApiException.conflict("Your attendance shortage in " + courseCode + " has already been condoned.");
     }
 
     CondonationRequest request =

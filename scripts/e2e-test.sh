@@ -8,6 +8,7 @@
 #   5. fee underpaid -> verify-payment worker throws PAYMENT_INVALID
 #   6. simulated SIS failure -> admin fixes it -> retried -> condoned
 #
+# It needs a fresh database (no requests yet): docker compose down -v && docker compose up -d
 # Run it from the repository root while `docker compose up` is running:
 #   docker run --rm --network host -v "$PWD/scripts:/scripts" alpine:3.20 \
 #     sh -c "apk add -q bash curl jq && bash /scripts/e2e-test.sh"
@@ -111,6 +112,11 @@ for v in FA AA HOD ADMIN S1 S2 S3 S4; do
   if [ -z "${!v}" ] || [ "${!v}" = null ]; then echo "Login failed for $v - is the app running?"; exit 1; fi
 done
 post "$ADMIN" /admin/settings '{"simulateSisFailure":false}' PUT > /dev/null
+if [ "$(get "$S3" /requests | jq length)" != 0 ] || [ "$(get "$S1" /requests | jq length)" != 0 ]; then
+  echo "The demo students already have requests. The end-to-end test needs a fresh database:"
+  echo "  docker compose down -v && docker compose up -d     (then wait ~30 s and run the test again)"
+  exit 1
+fi
 
 # ---------------------------------------------------------------- 1
 echo; echo "1. Happy path: RA2311004010103, 21ECC302J (69.44%), medical"

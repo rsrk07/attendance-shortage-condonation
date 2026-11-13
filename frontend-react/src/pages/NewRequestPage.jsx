@@ -42,7 +42,7 @@ export default function NewRequestPage() {
     return <ErrorNotice error={options.error || courses.error} onRetry={() => (options.reload(), courses.reload())} />;
   }
 
-  const eligibleCourses = courses.data.filter((c) => c.shortage && !c.hasOpenRequest);
+  const eligibleCourses = courses.data.filter((c) => c.shortage && !c.hasOpenRequest && !c.condoned);
 
   function validate() {
     const next = {};
@@ -107,7 +107,7 @@ export default function NewRequestPage() {
 
       {eligibleCourses.length === 0 ? (
         <Notice tone="info" title="No course needs condonation right now">
-          All your courses are at 75% or above, or already have an open request.{" "}
+          All your courses are at 75% or above, already condoned, or already have an open request.{" "}
           <Link to="/requests" className="link">
             Back to my requests
           </Link>
@@ -118,7 +118,7 @@ export default function NewRequestPage() {
             <legend className="mb-2 font-display text-2xl font-semibold">Course</legend>
             <div className="sheet divide-y divide-rule" role="radiogroup" aria-invalid={Boolean(errors.courseCode)}>
               {courses.data.map((c) => {
-                const disabled = !c.shortage || c.hasOpenRequest;
+                const disabled = !c.shortage || c.hasOpenRequest || c.condoned;
                 return (
                   <label
                     key={c.courseCode}
@@ -139,7 +139,13 @@ export default function NewRequestPage() {
                       </span>
                       <span className="block text-sm text-ink-soft">
                         {c.attended} of {c.conducted} classes
-                        {c.hasOpenRequest ? ", you already have an open request" : !c.shortage ? ", no condonation needed" : ""}
+                        {c.condoned
+                          ? ", already condoned"
+                          : c.hasOpenRequest
+                            ? ", you already have an open request"
+                            : !c.shortage
+                              ? ", no condonation needed"
+                              : ""}
                       </span>
                     </span>
                     <span className={`font-semibold ${c.shortage ? "text-pending" : "text-approve"}`}>{percent(c.percentage)}</span>

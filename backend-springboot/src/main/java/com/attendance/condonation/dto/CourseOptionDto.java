@@ -9,4 +9,5 @@ public record CourseOptionDto(
     int conducted,
     BigDecimal percentage,
     boolean shortage,
-    boolean hasOpenRequest) {}
+    boolean hasOpenRequest,
+    boolean condoned) {}

@@ -101,15 +101,21 @@ function AttendanceRow({ course }) {
       </div>
       <div className="relative h-2.5 rounded-full bg-paper" aria-hidden="true">
         <div
-          className={`h-full rounded-full ${course.shortage ? "bg-pending" : "bg-approve"}`}
+          className={`h-full rounded-full ${course.shortage && !course.condoned ? "bg-pending" : "bg-approve"}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
         <span className="absolute -top-1 h-4.5 w-0.5 bg-ink" style={{ left: "75%" }} title="75% required" />
       </div>
-      <p className={`text-right font-semibold ${course.shortage ? "text-pending" : "text-approve"}`}>
+      <p className={`text-right font-semibold ${course.shortage && !course.condoned ? "text-pending" : "text-approve"}`}>
         {percent(pct)}
         <span className="block text-xs font-normal text-ink-soft">
-          {course.hasOpenRequest ? "Request open" : course.shortage ? "Short" : "Meets 75%"}
+          {course.condoned
+            ? "Condoned"
+            : course.hasOpenRequest
+              ? "Request open"
+              : course.shortage
+                ? "Short"
+                : "Meets 75%"}
         </span>
       </p>
     </li>

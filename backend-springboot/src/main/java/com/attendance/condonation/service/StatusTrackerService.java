@@ -18,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -206,7 +207,7 @@ public class StatusTrackerService {
       return "A technical problem occurred - the admin has been alerted in Camunda Operate.";
     }
     return switch (key) {
-      case "SUBMITTED" -> request.getDocuments().size() + " supporting document(s) attached";
+      case "SUBMITTED" -> count(request.getDocuments().size(), "supporting document") + " attached";
       case "ATTENDANCE" -> attendanceDetail(vars, request, state);
       case "ELIGIBILITY" -> eligibilityDetail(vars, request);
       case "DOCUMENTS" -> documentsDetail(vars, request, state);
@@ -243,8 +244,27 @@ public class StatusTrackerService {
       return null;
     }
     String remark = Vars.string(e.get("remark"));
-    String text = slab.replace('_', ' ') + (fee != null && fee > 0 ? " - fee Rs. " + fee : "");
+    String text = slabName(slab) + (fee != null && fee > 0 ? ", fee " + rupees(fee) : "");
     return remark == null || remark.isBlank() ? text : text + ". " + remark;
+  }
+
+  private static String slabName(String slab) {
+    return switch (slab) {
+      case "SLAB_A" -> "Slab A";
+      case "SLAB_B" -> "Slab B";
+      case "SLAB_C" -> "Slab C";
+      case "NOT_ELIGIBLE" -> "Not eligible";
+      case "NOT_REQUIRED" -> "Not required";
+      default -> slab.replace('_', ' ');
+    };
+  }
+
+  private static String rupees(int amount) {
+    return "\u20B9" + String.format(Locale.ROOT, "%,d", amount);
+  }
+
+  private static String count(long n, String noun) {
+    return n + " " + noun + (n == 1 ? "" : "s");
   }
 
   private String documentsDetail(Map<String, Object> vars, CondonationRequest request, StepState state) {
@@ -259,7 +279,7 @@ public class StatusTrackerService {
     if (state == StepState.PENDING || state == StepState.SKIPPED) {
       return null;
     }
-    return verified + " of " + total + " document(s) verified";
+    return verified + " of " + count(total, "document") + " verified";
   }
 
   private String approvalDetail(String role, Map<String, Object> vars, CondonationRequest request, StepState state) {
@@ -291,7 +311,7 @@ public class StatusTrackerService {
 
   private String feeDetail(CondonationRequest request, StepState state) {
     if (state == StepState.ACTIVE) {
-      return request.getFee() == null ? "Waiting for payment" : "Rs. " + request.getFee() + " due - pay from your inbox";
+      return request.getFee() == null ? "Waiting for payment" : rupees(request.getFee()) + " due, pay it under Fee payments";
     }
     if (state == StepState.COMPLETED && request.getPaymentReference() != null) {
       return "Paid via " + request.getPaymentMode() + " (ref. " + request.getPaymentReference() + ")";

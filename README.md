@@ -191,7 +191,8 @@ Processes can also be followed in **Camunda Operate** and the user tasks complet
 | End-to-end test | `scripts/e2e-test.sh` (against the running stack and the real Camunda cluster) | The six scenarios below |
 
 ```bash
-# with the stack running (docker compose up -d), from the repository root:
+# needs a fresh database, so start from an empty volume:
+docker compose down -v && docker compose up -d     # wait ~30 s for the backend
 docker run --rm --network host -v "$PWD/scripts:/scripts" alpine:3.20 \
   sh -c "apk add -q bash curl jq && bash /scripts/e2e-test.sh"
 ```
