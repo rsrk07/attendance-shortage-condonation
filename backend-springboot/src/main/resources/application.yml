@@ -58,7 +58,7 @@ app:
   simulate-sis-failure: ${SIMULATE_SIS_FAILURE:false}
   # When set, every notification e-mail (student and approvers) goes to this one inbox - handy for demos
   notification-email: ${NOTIFICATION_EMAIL:}
-  student-email-domain: ${STUDENT_EMAIL_DOMAIN:srmist.edu.in}
+  student-email-domain: ${STUDENT_EMAIL_DOMAIN:example.com}
   approver-emails:
     fa: ${FA_EMAIL:fa@example.com}
     aa: ${AA_EMAIL:aa@example.com}
