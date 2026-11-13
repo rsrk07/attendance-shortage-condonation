@@ -7,6 +7,7 @@
 #   4. Faculty Advisor rejects with a remark
 #   5. fee underpaid -> verify-payment worker throws PAYMENT_INVALID
 #   6. simulated SIS failure -> admin fixes it -> retried -> condoned
+#   7. a second request for an already condoned course is refused
 #
 # It needs a fresh database (no requests yet): docker compose down -v && docker compose up -d
 # Run it from the repository root while `docker compose up` is running:
@@ -183,6 +184,12 @@ if [ $SUBMITTED -eq 0 ] && approve_all "$R" && pay "$S1" "$R" 500; then
     else fail "SIS retry did not finish"; fi
   else fail "admin fix task did not appear"; fi
 else fail "SIS scenario did not reach the SIS step"; fi
+
+# ---------------------------------------------------------------- 7
+echo; echo "7. Second request for an already condoned course (RA2311004010103, 21ECC302J)"
+F=$(upload "$S3" /tmp/medical-certificate.pdf)
+check "rejected by the API" "$(post "$S3" /requests "$(jq -nc --arg f "$F" '{courseCode:"21ECC302J", reasonCategory:"MEDICAL", reason:"Applying again for a course that is already condoned.", documents:[{type:"MEDICAL_CERTIFICATE", fileId:$f}]}')")" 409
+check "course shows as condoned" "$(get "$S3" /meta/my-courses | jq -r '.[] | select(.courseCode=="21ECC302J") | .condoned')" true
 
 echo; echo "Passed: $PASSED  Failed: $FAILED"
 [ "$FAILED" -eq 0 ]

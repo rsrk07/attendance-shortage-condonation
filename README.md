@@ -188,7 +188,7 @@ Processes can also be followed in **Camunda Operate** and the user tasks complet
 |---|---|---|
 | Unit tests | `backend-springboot/src/test` (`mvn package`) | Document signature checks, payment rules, file-name cleaning |
 | API smoke test | `.github/scripts/smoke-test.sh` (CI, against the jar and against the Docker stack through nginx) | Login, roles (401/403), seeding, upload validation, request validation, rollback when Camunda is unreachable |
-| End-to-end test | `scripts/e2e-test.sh` (against the running stack and the real Camunda cluster) | The six scenarios below |
+| End-to-end test | `scripts/e2e-test.sh` (against the running stack and the real Camunda cluster) | The seven scenarios below |
 
 ```bash
 # needs a fresh database, so start from an empty volume:
@@ -205,6 +205,7 @@ docker run --rm --network host -v "$PWD/scripts:/scripts" alpine:3.20 \
 | 4 | `RA2311004010103`, 21ECC303T, FA rejects with a remark | Rejected at FA review; AA, HOD, fee and SIS skipped |
 | 5 | `RA2311004010101`, 21ECC302J, pays ₹100 of ₹1,000 | Rejected at fee payment (`PAYMENT_INVALID`), with the worker's reason |
 | 6 | `RA2311004010101`, 21ECC301T (72.22%) with the simulated SIS failure on | Admin gets "Fix the SIS update", fixes it, update retried → approved (Slab A) |
+| 7 | `RA2311004010103` applies again for the condoned 21ECC302J | Refused with 409; the course shows as condoned |
 
 ## FEEL expression dictionary
 

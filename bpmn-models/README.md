@@ -97,6 +97,8 @@ then: Notify student (rejected) → Record outcome → Request rejected
 | `update-sis-record` | `SIS_UPDATE_FAILED` |
 | `record-outcome` | — |
 
+Each error carries a note for the student or admin (`documentRejectionNote`, `paymentRejectionNote`, `sisError`). Camunda keeps error variables local to the catching boundary event, so `Boundary_DocInvalid`, `Boundary_PaymentInvalid` and `Boundary_SisFailed` each have an output mapping (`=documentRejectionNote` → `documentRejectionNote`, …) that copies the note to the process scope.
+
 ## Validation
 
 All three models are imported into Camunda Web Modeler (Camunda Hub, project folder `full-stack-v2`) and checked against **Camunda 8.10** with no errors. The remaining notes are informational (linked DMN/forms/child processes are resolved at deploy time). The email connector uses the `{{secrets.NAME}}` connector-secret format, which 8.10 marks as "legacy" but still fully supports.
