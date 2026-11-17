@@ -1,14 +1,13 @@
 package com.attendance.condonation.entity;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /** An uploaded supporting document (kept in the database so the app needs no extra storage). */
 @Entity
@@ -36,9 +35,9 @@ public class StoredFile {
   @Column(nullable = false)
   private Instant uploadedAt;
 
-  @Lob
-  @Basic(fetch = FetchType.LAZY)
-  @Column(nullable = false)
+  /** File bytes: BYTEA in PostgreSQL, VARBINARY in H2 (max 5 MB, checked on upload). */
+  @JdbcTypeCode(SqlTypes.VARBINARY)
+  @Column(nullable = false, length = 6 * 1024 * 1024)
   private byte[] data;
 
   protected StoredFile() {}

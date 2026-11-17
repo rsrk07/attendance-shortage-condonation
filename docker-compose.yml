@@ -1,21 +1,41 @@
 # Runs the whole application:  docker compose up --build
 #   website  -> http://localhost:3000   (nginx serving React, forwarding /api to the backend)
-#   backend  -> http://localhost:8080   (Spring Boot + Camunda job workers + H2)
+#   backend  -> http://localhost:8080   (Spring Boot + Camunda job workers)
+#   postgres -> PostgreSQL 17 database (not published to the host)
 # Secrets and settings come from .env (copy .env.example to .env and fill it in).
 # Camunda itself runs in Camunda 8 SaaS, so it is not a container here.
 
 name: condonation
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-condonation}
+      POSTGRES_USER: ${DB_USERNAME:-condonation}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me-locally}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
   backend:
     build:
       context: .
       dockerfile: backend-springboot/Dockerfile
     env_file: .env
     environment:
-      DB_URL: jdbc:h2:file:/app/data/condonation
-    volumes:
-      - backend-data:/app/data
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-condonation}
+      DB_USERNAME: ${DB_USERNAME:-condonation}
+      DB_PASSWORD: ${DB_PASSWORD:-change-me-locally}
+      H2_CONSOLE_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
     healthcheck:
@@ -35,4 +55,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  backend-data:
+  postgres-data:

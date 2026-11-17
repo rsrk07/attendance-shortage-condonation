@@ -3,7 +3,7 @@
 Spring Boot 3.5 (Java 21) service for the **Attendance Shortage Condonation** workflow. It:
 
 - exposes the REST API used by the React frontend (login, request submission with documents, live status, custom Tasklist),
-- stores students, requests, documents, approvals and the simulated SIS in **H2** through **JPA repositories**,
+- stores students, requests, documents, approvals and the simulated SIS in **PostgreSQL** (Docker Compose) or embedded **H2** (local runs, CI) through **JPA repositories**,
 - starts and drives the Camunda 8 process through the **Camunda Java client** (`camunda-spring-boot-3-starter` 8.10),
 - implements the four BPMN service tasks as typed **`@JobWorker`** methods that throw **BPMN errors**,
 - deploys `bpmn-models/` (BPMN, DMN, forms) to the cluster on startup.
@@ -68,7 +68,7 @@ Errors are returned as `{status, message, fieldErrors, timestamp}`.
 
 - On startup `DataSeeder` loads `src/main/resources/data/attendance/*.json` (the same files the REST connector fetches from GitHub) into `student` / `course_attendance`, and creates the demo users.
 - Demo users: the four student register numbers (`RA2311004010101` … `104`), `fa`, `aa`, `hod`, `admin`. All use `DEMO_PASSWORD` (default `demo123`).
-- H2 file database in `./data/` (in Docker: a named volume). The H2 console is at `/h2-console` when running locally (JDBC URL `jdbc:h2:file:./data/condonation`, user `sa`, empty password).
+- In Docker Compose the database is PostgreSQL 17 (`postgres-data` volume). Run without Docker, the backend uses an H2 file database in `./data/`; the H2 console is at `/h2-console` when running locally (JDBC URL `jdbc:h2:file:./data/condonation`, user `sa`, empty password).
 
 ## Configuration
 
@@ -84,7 +84,7 @@ All settings come from environment variables (see `../.env.example`); nothing se
 | `FA_EMAIL`, `AA_EMAIL`, `HOD_EMAIL` | `*@example.com` | approver e-mail addresses |
 | `FEE_DEADLINE`, `REMINDER_INTERVAL` | `P7D`, `PT24H` | process timers |
 | `SIMULATE_SIS_FAILURE` | `false` | start requests with a simulated SIS failure |
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | H2 file | datasource |
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | H2 file (PostgreSQL in Docker Compose) | datasource |
 | `CORS_ORIGINS` | localhost + `*.app.github.dev` | allowed browser origins |
 
 ## Run

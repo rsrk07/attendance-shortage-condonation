@@ -1,6 +1,6 @@
 # Attendance Shortage Condonation
 
-A full-stack workflow automation application built with **Camunda 8**, **Spring Boot**, **React** and an **H2** database.
+A full-stack workflow automation application built with **Camunda 8**, **Spring Boot**, **React** and **PostgreSQL**.
 
 ## Project overview
 
@@ -51,7 +51,7 @@ attendance-shortage-condonation/
 | Process models | BPMN 2.0 (Call Activities, parallel + sequential multi-instance, sub-processes, error/timer boundary events, exclusive/parallel gateways), **DMN** decision table, **FEEL** expressions, Camunda Forms |
 | Connectors | **REST connector** (`io.camunda:http-json:1`) for attendance data, **Email connector** (`io.camunda:email:1`, Gmail SMTP) |
 | Backend | Java 21, **Spring Boot 3.5**, Spring Web, Spring Data JPA, Bean Validation, **Camunda Spring Boot starter 8.10** (`CamundaClient`, typed `@JobWorker`s, BPMN errors) |
-| Database | **H2** (file mode, Docker volume) |
+| Database | **PostgreSQL 17** in Docker Compose (Spring Data JPA); embedded **H2** for local runs and CI |
 | Frontend | **React 19**, **Vite 7**, **Tailwind CSS 4**, React Router 7 |
 | Packaging | **Docker** (multi-stage builds), **Docker Compose**, nginx reverse proxy |
 | Hosting / dev | **GitHub Codespaces**, GitHub Actions CI |
@@ -67,7 +67,7 @@ flowchart LR
     NGINX["nginx<br/>static site + /api proxy"]
     API["Spring Boot backend<br/>REST API · services"]
     W["Job workers<br/>validate-document · verify-payment<br/>update-sis-record · record-outcome"]
-    DB[("H2 database<br/>students · requests · documents<br/>approvals · SIS records")]
+    DB[("PostgreSQL<br/>students · requests · documents<br/>approvals · SIS records")]
   end
   subgraph Camunda["Camunda 8 SaaS cluster"]
     Z["Zeebe engine<br/>main process + child processes + DMN"]
@@ -88,8 +88,8 @@ flowchart LR
 
 **How a request flows through the system**
 
-1. `POST /api/files` stores each document in H2; `POST /api/requests` saves the request and starts `attendance-shortage-condonation` with the student, course, reason and `documents` list as variables.
-2. Camunda runs the connectors, script tasks and DMN itself; the four service tasks are executed by the Spring Boot **job workers**, which also write their results to H2.
+1. `POST /api/files` stores each document in the database; `POST /api/requests` saves the request and starts `attendance-shortage-condonation` with the student, course, reason and `documents` list as variables.
+2. Camunda runs the connectors, script tasks and DMN itself; the four service tasks are executed by the Spring Boot **job workers**, which also write their results to the database.
 3. The website's inbox calls `GET /api/tasks`, which searches Camunda user tasks by candidate group (`FA`, `AA`, `HOD`, `admin`) or assignee (the student). Completing a task (`POST /api/tasks/{key}/review`, `/pay-fee`, `/admin-fix`) completes the Camunda user task with typed variables.
 4. The route slip polls `GET /api/requests/{id}/status`, which combines Camunda **element instances** (which step is active/completed/terminated), **process variables** (slab, fee, approvals, rejection reason) and the database.
 
@@ -142,7 +142,7 @@ Request submitted
    ```
 5. Open the **Ports** tab and click the globe icon next to port **3000** (Website). Log in with a demo account.
 
-The backend deploys all BPMN, DMN and form files on startup, so the cluster does not need anything deployed by hand. Stop with `docker compose down` (data stays in the `backend-data` volume; add `-v` to reset it).
+The backend deploys all BPMN, DMN and form files on startup, so the cluster does not need anything deployed by hand. Stop with `docker compose down` (data stays in the `postgres-data` volume; add `-v` to reset it).
 
 ### Option B — any machine with Docker
 
@@ -274,6 +274,8 @@ Copy `.env.example` to `.env`. `.env` is git-ignored; secrets never go into the 
 | `CAMUNDA_CLUSTER_ID`, `CAMUNDA_REGION` | no | project cluster, `sin-1` | Camunda SaaS cluster |
 | `CAMUNDA_CLIENT_ID`, `CAMUNDA_CLIENT_SECRET` | **yes** | – | API client (Orchestration Cluster API scope) |
 | `DEPLOY_ON_STARTUP` | no | `true` | Deploy `bpmn-models/` when the backend starts |
+| `DB_NAME`, `DB_USERNAME` | no | `condonation` | PostgreSQL database and user (Docker Compose) |
+| `DB_PASSWORD` | **yes** | `change-me-locally` | PostgreSQL password |
 | `DEMO_PASSWORD` | yes | `demo123` | Password of all demo users |
 | `NOTIFICATION_EMAIL` | no | – | Send every e-mail to this inbox (demos) |
 | `FA_EMAIL`, `AA_EMAIL`, `HOD_EMAIL` | no | `*@example.com` | Approver addresses |
@@ -290,5 +292,5 @@ Copy `.env.example` to `.env`. `.env` is git-ignored; secrets never go into the 
 ### Deployment
 
 - **Process models:** deployed automatically by the backend (`ProcessDeployer`) from the jar, where Maven packages `bpmn-models/`. Unchanged files do not create new versions. They can also be deployed from Web Modeler.
-- **Containers:** `docker-compose.yml` builds two images — `backend-springboot/Dockerfile` (Maven build → JRE 21, runs as a non-root user, H2 in the `backend-data` volume) and `frontend-react/Dockerfile` (Vite build → nginx, which serves the site and proxies `/api` to the backend). Only port 3000 is needed by users.
+- **Containers:** `docker-compose.yml` runs PostgreSQL 17 (data in the `postgres-data` volume, health-checked before the backend starts) and builds two images — `backend-springboot/Dockerfile` (Maven build → JRE 21, runs as a non-root user) and `frontend-react/Dockerfile` (Vite build → nginx, which serves the site and proxies `/api` to the backend). Only port 3000 is needed by users.
 - **CI:** `.github/workflows/build.yml` compiles and unit-tests the backend, smoke-tests the REST API against the jar, builds the frontend, then builds and starts the whole Docker Compose stack and runs the same API checks through nginx.
