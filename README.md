@@ -37,8 +37,10 @@ attendance-shortage-condonation/
 ├── bpmn-models/            Main BPMN, child BPMNs (Call Activities), DMN, Camunda Forms  → bpmn-models/README.md
 ├── backend-springboot/     Spring Boot: REST API, JPA entities, repositories, services, Zeebe job workers  → backend-springboot/README.md
 ├── frontend-react/         React + Vite + Tailwind: role-based views, document builder, Tasklist UI  → frontend-react/README.md
-├── docker-compose.yml      Runs the backend and the website (nginx) together
+├── docker-compose.yml      Runs PostgreSQL, the backend and the website (nginx) together
 ├── .env.example            Every setting and secret the app reads (copy to .env)
+├── scripts/e2e-test.sh     End-to-end test: seven scenarios against the live Camunda cluster
+├── docs/                   Report screenshots, Camunda Operate captures and test evidence
 ├── .devcontainer/          GitHub Codespaces configuration (Docker-in-Docker)
 └── .github/workflows/      CI: backend build + tests, frontend build, Docker stack smoke test
 ```
