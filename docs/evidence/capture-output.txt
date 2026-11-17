@@ -1,0 +1,57 @@
+Unable to find image 'node:22-bookworm' locally
+22-bookworm: Pulling from library/node
+172a422ce4a3: Pulling fs layer
+9bab93d346cd: Pulling fs layer
+450e9cb70a64: Pulling fs layer
+69245854ad58: Pulling fs layer
+338554e9113f: Pulling fs layer
+d6c30932f8d3: Pulling fs layer
+7cd13466dc1b: Pulling fs layer
+2abb2fbacec9: Pulling fs layer
+2abb2fbacec9: Download complete
+172a422ce4a3: Download complete
+450e9cb70a64: Download complete
+338554e9113f: Download complete
+69245854ad58: Download complete
+d6c30932f8d3: Download complete
+7cd13466dc1b: Download complete
+f679bfbbca07: Download complete
+9bab93d346cd: Download complete
+ca58bfb5cfd7: Download complete
+69245854ad58: Pull complete
+338554e9113f: Pull complete
+d6c30932f8d3: Pull complete
+9bab93d346cd: Pull complete
+2abb2fbacec9: Pull complete
+172a422ce4a3: Pull complete
+7cd13466dc1b: Pull complete
+450e9cb70a64: Pull complete
+Digest: sha256:e13726ca604184d7a91fcacab1fc09eefd642dc28e79ac34e85540dd93b78cfb
+Status: Downloaded newer image for node:22-bookworm
+00:33:00 saved bpmn-main { w: 3092, h: 680 }
+00:33:00 saved bpmn-approval-child { w: 569, h: 290 }
+00:33:01 saved bpmn-notification-child { w: 382, h: 289 }
+00:33:05 Arjun request REQ-1007
+00:33:06 Priya request (SIS failure) REQ-1008
+00:33:07 saved 01-login
+00:33:09 saved 03-new-request-form
+00:33:09 Rahul request REQ-1009
+00:33:16 saved 04-route-slip-in-progress
+00:33:18 saved 05-fa-inbox
+00:33:19 saved 06-fa-review
+00:33:23 saved 07-aa-review
+00:33:28 saved 08-hod-review
+00:33:32 saved 09-pay-fee
+00:33:51 saved 10-route-slip-condoned
+00:33:52 saved 02-student-my-requests
+00:33:54 saved 15-mobile-route-slip
+00:34:06 saved 11a-admin-inbox
+00:34:08 saved 11-admin-fix
+00:34:26 saved 12-admin-settings-sis
+00:34:27 saved 12b-route-slip-sis-fixed
+00:34:29 saved 13-all-requests
+00:34:31 saved 14-route-slip-document-rejected
+00:34:32 saved 14b-route-slip-not-eligible
+00:34:34 saved 14c-route-slip-fa-rejected
+00:34:36 saved 14d-route-slip-payment-rejected
+00:34:36 done

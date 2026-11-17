@@ -1,0 +1,59 @@
+2026-11-17T00:28:05.092Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.CondonationApplication   : Started CondonationApplication in 12.828 seconds (process running for 14.079)
+2026-11-17T00:28:07.214Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.config.DataSeeder        : Seed data ready: 4 attendance file(s), 4 new student(s), 8 user(s)
+2026-11-17T00:28:08.137Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.config.ProcessDeployer   : Deployed to Camunda (deployment 2251799813687875): 3 process(es), 1 decision(s), 3 form(s)
+2026-11-17T00:28:08.137Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.config.ProcessDeployer   :   process condonation-approval version 1
+2026-11-17T00:28:08.137Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.config.ProcessDeployer   :   process send-notification version 1
+2026-11-17T00:28:08.137Z  INFO 1 --- [condonation-backend] [           main] c.a.condonation.config.ProcessDeployer   :   process attendance-shortage-condonation version 1
+2026-11-17T00:28:56.043Z  INFO 1 --- [condonation-backend] [nio-8080-exec-8] c.a.c.service.CondonationService         : Started process instance 2251799813687955 for REQ-1001
+2026-11-17T00:28:59.563Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1001: document medical-certificate.pdf verified (PDF, 77 B - file signature verified)
+2026-11-17T00:29:04.787Z  INFO 1 --- [condonation-backend] [nio-8080-exec-4] c.a.condonation.service.TaskService      : fa APPROVED task 2251799813688052
+2026-11-17T00:29:08.428Z  INFO 1 --- [condonation-backend] [nio-8080-exec-8] c.a.condonation.service.TaskService      : aa APPROVED task 2251799813688124
+2026-11-17T00:29:11.007Z  INFO 1 --- [condonation-backend] [nio-8080-exec-1] c.a.condonation.service.TaskService      : hod APPROVED task 2251799813688199
+2026-11-17T00:29:14.168Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.PaymentVerificationWorker   : REQ-1001: payment UPI179487535321636 verified
+2026-11-17T00:29:14.402Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1001: SIS updated (SIS-261117002914)
+2026-11-17T00:29:14.747Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1001: outcome APPROVED recorded
+2026-11-17T00:29:38.683Z  INFO 1 --- [condonation-backend] [nio-8080-exec-8] c.a.c.service.CondonationService         : Started process instance 6755399441058445 for REQ-1002
+2026-11-17T00:29:45.886Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1002: outcome REJECTED recorded
+2026-11-17T00:29:49.195Z  INFO 1 --- [condonation-backend] [nio-8080-exec-5] c.a.c.service.CondonationService         : Started process instance 6755399441058576 for REQ-1003
+2026-11-17T00:29:50.442Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : Document rejected: 'fake-certificate.pdf' is not a real PDF file (the content does not match the file type).
+2026-11-17T00:29:54.133Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1003: outcome REJECTED recorded
+2026-11-17T00:29:56.439Z  INFO 1 --- [condonation-backend] [io-8080-exec-10] c.a.c.service.CondonationService         : Started process instance 2251799813688722 for REQ-1004
+2026-11-17T00:29:57.464Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1004: document medical-certificate.pdf verified (PDF, 77 B - file signature verified)
+2026-11-17T00:30:01.131Z  INFO 1 --- [condonation-backend] [nio-8080-exec-5] c.a.condonation.service.TaskService      : fa REJECTED task 2251799813688811
+2026-11-17T00:30:04.603Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1004: outcome REJECTED recorded
+2026-11-17T00:30:08.369Z  INFO 1 --- [condonation-backend] [nio-8080-exec-1] c.a.c.service.CondonationService         : Started process instance 4503599627373256 for REQ-1005
+2026-11-17T00:30:10.079Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1005: document medical-certificate.pdf verified (PDF, 77 B - file signature verified)
+2026-11-17T00:30:13.080Z  INFO 1 --- [condonation-backend] [nio-8080-exec-5] c.a.condonation.service.TaskService      : fa APPROVED task 4503599627373345
+2026-11-17T00:30:15.693Z  INFO 1 --- [condonation-backend] [nio-8080-exec-8] c.a.condonation.service.TaskService      : aa APPROVED task 4503599627373417
+2026-11-17T00:30:18.313Z  INFO 1 --- [condonation-backend] [nio-8080-exec-2] c.a.condonation.service.TaskService      : hod APPROVED task 4503599627373492
+2026-11-17T00:30:20.792Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.PaymentVerificationWorker   : REQ-1005: payment rejected - the amount paid (Rs. 100) is less than the fee of Rs. 1000
+2026-11-17T00:30:25.201Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1005: outcome REJECTED recorded
+2026-11-17T00:30:27.985Z  INFO 1 --- [condonation-backend] [nio-8080-exec-2] c.a.c.service.CondonationService         : Started process instance 4503599627373676 for REQ-1006
+2026-11-17T00:30:29.538Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1006: document medical-certificate.pdf verified (PDF, 77 B - file signature verified)
+2026-11-17T00:30:32.831Z  INFO 1 --- [condonation-backend] [nio-8080-exec-7] c.a.condonation.service.TaskService      : fa APPROVED task 4503599627373765
+2026-11-17T00:30:35.384Z  INFO 1 --- [condonation-backend] [io-8080-exec-10] c.a.condonation.service.TaskService      : aa APPROVED task 4503599627373838
+2026-11-17T00:30:38.000Z  INFO 1 --- [condonation-backend] [nio-8080-exec-4] c.a.condonation.service.TaskService      : hod APPROVED task 4503599627373912
+2026-11-17T00:30:40.521Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.PaymentVerificationWorker   : REQ-1006: payment UPI179487544018141 verified
+2026-11-17T00:30:40.711Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1006: SIS rejected the update for RA2311004010101 / 21ECC301T: the course record is locked for the current semester (simulated failure).
+2026-11-17T00:30:43.106Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1006: SIS updated (SIS-261117003043)
+2026-11-17T00:30:43.247Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1006: outcome APPROVED recorded
+2026-11-17T00:33:05.854Z  INFO 1 --- [condonation-backend] [nio-8080-exec-1] c.a.c.service.CondonationService         : Started process instance 6755399441059066 for REQ-1007
+2026-11-17T00:33:05.996Z  INFO 1 --- [condonation-backend] [nio-8080-exec-4] c.a.c.service.CondonationService         : Started process instance 6755399441059093 for REQ-1008
+2026-11-17T00:33:07.065Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1008: document medical-certificate.pdf verified (PDF, 142 B - file signature verified)
+2026-11-17T00:33:07.517Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1007: document medical-certificate.pdf verified (PDF, 142 B - file signature verified)
+2026-11-17T00:33:09.813Z  INFO 1 --- [condonation-backend] [nio-8080-exec-7] c.a.c.service.CondonationService         : Started process instance 2251799813689282 for REQ-1009
+2026-11-17T00:33:10.879Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1009: document medical-certificate.pdf verified (PDF, 142 B - file signature verified)
+2026-11-17T00:33:10.895Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.DocumentValidationWorker    : REQ-1009: document hospital-discharge-summary.png verified (PNG, 68 B - file signature verified)
+2026-11-17T00:33:19.721Z  INFO 1 --- [condonation-backend] [nio-8080-exec-3] c.a.condonation.service.TaskService      : fa APPROVED task 2251799813689378
+2026-11-17T00:33:24.284Z  INFO 1 --- [condonation-backend] [nio-8080-exec-2] c.a.condonation.service.TaskService      : aa APPROVED task 2251799813689460
+2026-11-17T00:33:28.804Z  INFO 1 --- [condonation-backend] [nio-8080-exec-3] c.a.condonation.service.TaskService      : hod APPROVED task 2251799813689537
+2026-11-17T00:33:32.851Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.PaymentVerificationWorker   : REQ-1009: payment UPI4875611396 verified
+2026-11-17T00:33:32.994Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1009: SIS updated (SIS-261117003332)
+2026-11-17T00:33:33.177Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1009: outcome APPROVED recorded
+2026-11-17T00:33:55.216Z  INFO 1 --- [condonation-backend] [nio-8080-exec-7] c.a.condonation.service.TaskService      : fa APPROVED task 6755399441059185
+2026-11-17T00:33:57.719Z  INFO 1 --- [condonation-backend] [nio-8080-exec-2] c.a.condonation.service.TaskService      : aa APPROVED task 6755399441059402
+2026-11-17T00:34:00.205Z  INFO 1 --- [condonation-backend] [nio-8080-exec-7] c.a.condonation.service.TaskService      : hod APPROVED task 6755399441059475
+2026-11-17T00:34:02.599Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.PaymentVerificationWorker   : REQ-1008: payment NB4875642397 verified
+2026-11-17T00:34:02.708Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1008: SIS rejected the update for RA2311004010102 / 21ECC301T: the course record is locked for the current semester (simulated failure).
+2026-11-17T00:34:08.365Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.condonation.worker.SisUpdateWorker   : REQ-1008: SIS updated (SIS-261117003408)
+2026-11-17T00:34:08.521Z  INFO 1 --- [condonation-backend] [pool-2-thread-1] c.a.c.worker.OutcomeRecorderWorker       : REQ-1008: outcome APPROVED recorded

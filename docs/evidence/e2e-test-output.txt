@@ -1,0 +1,65 @@
+API: http://localhost:3000/api
+
+1. Happy path: RA2311004010103, 21ECC302J (69.44%), medical
+        request REQ-1001
+  PASS  fa review task completed (204)
+  PASS  aa review task completed (204)
+  PASS  hod review task completed (204)
+  PASS  pay-fee task completed (204)
+  PASS  happy path: final status (APPROVED)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=COMPLETED  DOCUMENTS=COMPLETED  FA=COMPLETED  AA=COMPLETED  HOD=COMPLETED  FEE=COMPLETED  SIS=COMPLETED  OUTCOME=COMPLETED
+  PASS  slab (SLAB_B)
+  PASS  fee (1000)
+  PASS  document verified (VERIFIED)
+  PASS  approvals recorded (FA,AA,HOD)
+  PASS  SIS record written (1)
+
+2. DMN rejection: RA2311004010104, 21ECC303T (41.67%)
+  PASS  not eligible: final status (REJECTED)
+  PASS  not eligible: rejection stage (ELIGIBILITY)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=FAILED  DOCUMENTS=SKIPPED  FA=SKIPPED  AA=SKIPPED  HOD=SKIPPED  FEE=SKIPPED  SIS=SKIPPED  OUTCOME=FAILED
+        reason: Your attendance in 21ECC303T is 41.67%, which is below the condonable limit for your reason category.
+  PASS  slab (NOT_ELIGIBLE)
+
+3. Fake document: RA2311004010102, 21ECC301T (62.50%), text file renamed to .pdf
+  PASS  document rejected: final status (REJECTED)
+  PASS  document rejected: rejection stage (DOCUMENTS)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=COMPLETED  DOCUMENTS=FAILED  FA=SKIPPED  AA=SKIPPED  HOD=SKIPPED  FEE=SKIPPED  SIS=SKIPPED  OUTCOME=FAILED
+        reason: A supporting document was rejected: 'fake-certificate.pdf' is not a real PDF file (the content does not match the file type).
+  PASS  document marked rejected (REJECTED)
+  PASS  worker's note reaches the student (true)
+
+4. FA rejects: RA2311004010103, 21ECC303T (68.06%), family emergency
+  PASS  FA rejection saved (204)
+  PASS  FA rejected: final status (REJECTED)
+  PASS  FA rejected: rejection stage (FA_APPROVAL)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=COMPLETED  DOCUMENTS=COMPLETED  FA=FAILED  AA=SKIPPED  HOD=SKIPPED  FEE=SKIPPED  SIS=SKIPPED  OUTCOME=FAILED
+        reason: Rejected by the Faculty Advisor: The letter does not cover the absence dates
+
+5. Underpaid fee: RA2311004010101, 21ECC302J (65.28%), medical, pays Rs. 100 of 1000
+  PASS  fa review task completed (204)
+  PASS  aa review task completed (204)
+  PASS  hod review task completed (204)
+  PASS  pay-fee task completed (204)
+  PASS  payment rejected: final status (REJECTED)
+  PASS  payment rejected: rejection stage (FEE)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=COMPLETED  DOCUMENTS=COMPLETED  FA=COMPLETED  AA=COMPLETED  HOD=COMPLETED  FEE=FAILED  SIS=SKIPPED  OUTCOME=FAILED
+        reason: The fee payment could not be verified: the amount paid (Rs. 100) is less than the fee of Rs. 1000
+  PASS  worker's note reaches the student (true)
+
+6. SIS failure and admin fix: RA2311004010101, 21ECC301T (72.22%), personal reason
+  PASS  fa review task completed (204)
+  PASS  aa review task completed (204)
+  PASS  hod review task completed (204)
+  PASS  pay-fee task completed (204)
+  PASS  SIS failure reached the admin inbox
+  PASS  admin fix completed (204)
+  PASS  SIS fixed: final status (APPROVED)
+        route slip: SUBMITTED=COMPLETED  ATTENDANCE=COMPLETED  ELIGIBILITY=COMPLETED  DOCUMENTS=COMPLETED  FA=COMPLETED  AA=COMPLETED  HOD=COMPLETED  FEE=COMPLETED  SIS=COMPLETED  OUTCOME=COMPLETED
+  PASS  slab (SLAB_A)
+
+7. Second request for an already condoned course (RA2311004010103, 21ECC302J)
+  PASS  rejected by the API (409)
+  PASS  course shows as condoned (true)
+
+Passed: 37  Failed: 0
